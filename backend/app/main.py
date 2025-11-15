@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine
 from app.db.base import Base
 from app.db import models
-from app.routers import assistants
+from app.routers import assistants, run
 
 app = FastAPI(title= "multi-agent")
 
@@ -16,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(assistants.router)
+app.include_router(run.router)
 
 @app.on_event("startup")
 def on_startup():
