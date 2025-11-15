@@ -2,8 +2,11 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
+from pydantic import BaseModel
 
 from db import Base
+
+
 
 class Workflow(Base):
     __tablename__="workflows"
@@ -14,4 +17,4 @@ class Workflow(Base):
     created_at = Column(DateTime, default = datetime.utcnow)
     
     owner = relationship("User",back_populates="workflows")
-    
+
