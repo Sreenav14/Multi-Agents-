@@ -1,4 +1,3 @@
-// src/api/assistants.ts
 import { apiClient } from "./client";
 import type { Assistant } from "../types/api";
 
@@ -18,4 +17,9 @@ export async function createAssistant(
 ): Promise<Assistant> {
   const res = await apiClient.post<Assistant>("/assistants", payload);
   return res.data;
+}
+
+export async function fetchAssistantById(id:number): Promise<Assistant> {
+    const res = await apiClient.get<Assistant>(`/assistants/${id}`);
+    return res.data;
 }

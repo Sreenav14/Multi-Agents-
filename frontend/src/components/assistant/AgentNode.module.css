@@ -1,0 +1,44 @@
+
+
+root {
+}
+
+.node {
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  padding: 8px 10px;
+  background: radial-gradient(circle at top left, #020617, #020617);
+  margin-bottom: 8px;
+}
+
+.roleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.role {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.id {
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.promptLabel {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.prompt {
+  font-size: 0.78rem;
+  color: #cbd5f5;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

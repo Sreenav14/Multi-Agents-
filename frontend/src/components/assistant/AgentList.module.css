@@ -1,0 +1,29 @@
+
+root {
+}
+
+.wrapper {
+  margin-top: 8px;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.nodes {
+  margin-top: 4px;
+}

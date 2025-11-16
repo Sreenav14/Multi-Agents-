@@ -28,6 +28,6 @@ export function useAssistants() {
     assistants,
     loading,
     error,
-    refetch: load, 
+    refetch: load, // 
   };
 }

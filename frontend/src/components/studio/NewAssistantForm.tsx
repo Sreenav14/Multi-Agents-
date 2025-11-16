@@ -37,8 +37,8 @@ const NewAssistantForm : React.FC<NewAssistantFormProps> = ({onCreated,onCancel,
             setName("");
             setDescription("");
             setSpec("");
-        } catch (err){
-            setError(err?.message || "Failed to create assistant");
+        } catch (err: any) {
+            setError(err?.message || err?.response?.data?.detail || "Failed to create assistant");
         } finally {
             setSubmiting(false);
         }
