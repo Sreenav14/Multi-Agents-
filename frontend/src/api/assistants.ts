@@ -23,3 +23,7 @@ export async function fetchAssistantById(id:number): Promise<Assistant> {
     const res = await apiClient.get<Assistant>(`/assistants/${id}`);
     return res.data;
 }
+
+export async function deleteAssistant(id: number): Promise<void> {
+    await apiClient.delete(`/assistants/${id}`);
+}

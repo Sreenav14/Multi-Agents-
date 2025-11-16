@@ -9,6 +9,7 @@ export type AssistantCardProps = {
   spec?: string | null;
   createdAt?: string;
   onClick?: () => void;
+  onDelete?: () => void;
 };
 
 const AssistantCard: React.FC<AssistantCardProps> = ({
@@ -17,6 +18,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
   spec,
   createdAt,
   onClick,
+  onDelete,
 }) => {
   const subtitle =
     description && description.trim().length > 0
@@ -25,14 +27,33 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
 
   const footer = createdAt ? `Created ${createdAt}` : undefined;
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card onClick from firing
+    if (onDelete && window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+      onDelete();
+    }
+  };
+
   return (
-    <Card title={name} subtitle={subtitle} footer={footer} onClick={onClick}>
-      {spec && (
-        <div className={styles.spec}>
-          <strong>Spec:</strong> {spec}
-        </div>
+    <div className={styles.cardWrapper}>
+      <Card title={name} subtitle={subtitle} footer={footer} onClick={onClick}>
+        {spec && (
+          <div className={styles.spec}>
+            <strong>Spec:</strong> {spec}
+          </div>
+        )}
+      </Card>
+      {onDelete && (
+        <button
+          className={styles.deleteButton}
+          onClick={handleDelete}
+          title="Delete assistant"
+          aria-label="Delete assistant"
+        >
+          ×
+        </button>
       )}
-    </Card>
+    </div>
   );
 };
 

@@ -1,0 +1,71 @@
+root {
+}
+
+.wrapper {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  padding: 14px 14px 12px 14px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at top left, #020617, #020617);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e5e7eb;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.inputBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.textarea {
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: #f9fafb;
+  min-height: 70px;
+  resize: vertical;
+  outline: none;
+}
+
+.textarea:focus {
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+.inputRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.helper {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.transcriptSection {
+  flex: 1;
+  min-height: 140px;
+}

@@ -7,11 +7,26 @@ import { useAssistants } from "../../hooks/useAssistants";
 import type { Assistant } from "../../types/api";
 import type { AssistantCardProps } from "../../components/studio/AssistantCard";
 import { useNavigate } from "react-router-dom";
+import { deleteAssistant } from "../../api/assistants";
 
 const StudioDashboard: React.FC = () => {
   const { assistants, loading, error, refetch } = useAssistants();
   const navigate = useNavigate();
   const [showNewForm, setShowNewForm] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const handleDelete = async (assistantId: number) => {
+    try {
+      setDeletingId(assistantId);
+      await deleteAssistant(assistantId);
+      await refetch();
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message || "Failed to delete assistant";
+      alert(`Failed to delete assistant: ${errorMessage}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const mappedAssistants: AssistantCardProps[] = assistants.map(
     (assistant: Assistant) => ({
@@ -20,6 +35,7 @@ const StudioDashboard: React.FC = () => {
       spec: assistant.spec,
       createdAt: new Date(assistant.created_at).toLocaleDateString(),
       onClick: () => navigate(`/assistants/${assistant.id}`),
+      onDelete: deletingId === assistant.id ? undefined : () => handleDelete(assistant.id),
     })
   );
 

@@ -1,20 +1,24 @@
-// import {apiClient} from "./client";
+// src/api/runs.ts
+import { apiClient } from "./client";
+import type { Run, Message } from "../types/api";
 
-// // Start a new run for a given assistant.
-// //  * Backend expects:
-// // *   { "input_text": "..." }
-// // * and returns RunWithMessages:
-// // *   { id, assistant_id, status, input_text, created_at, completed_at,
-// // *     error_message, messages: [...] }
+export type CreateRunResponse = {
+  run: Run;
+  messages: Message[];
+};
 
-// export async function createRun(assistantId:number,inputText:string){
-//     const res = await apiClient.post(`/assistants/${assistantId}/runs`,{input_text:inputText,})
-//     return res.data;
-// }
-// /**
-//  * Fetch a past run by id, including its messages.
-//  */
-// export async function fetchRunById(runId:number){
-//     const res = await apiClient.get(`/runs/${runId}`);
-//     return res.data;
-// }
+// If your backend returns bare Run object with embedded messages,
+// adjust this type accordingly.
+
+export async function createRun(
+  assistantId: number,
+  inputText: string
+): Promise<CreateRunResponse> {
+  const res = await apiClient.post<CreateRunResponse>(
+    `/assistants/${assistantId}/runs`,
+    {
+      input_text: inputText,
+    }
+  );
+  return res.data;
+}

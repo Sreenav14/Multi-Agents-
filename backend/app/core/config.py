@@ -17,6 +17,10 @@ class settings:
     Frontend_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     
     Groq_API_KEY: str | None = os.getenv("GROQ_API_KEY", None)
+    LLM_Model: str = "llama-3.1-8b-instant"  # Updated from deprecated llama-3.1-70b-versatile (can also use: mixtral-8x7b-32768, gemma-7b-it)
+    
+    class config:
+        env_file = ".env"
     
 settings = settings()
 

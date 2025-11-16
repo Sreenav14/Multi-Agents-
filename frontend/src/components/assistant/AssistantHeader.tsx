@@ -1,5 +1,6 @@
 // src/components/assistant/AssistantHeader.tsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./AssistantHeader.module.css";
 
 type AssistantHeaderProps = {
@@ -13,8 +14,13 @@ const AssistantHeader: React.FC<AssistantHeaderProps> = ({
   description,
   spec,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.wrapper}>
+      <button className={styles.backButton} onClick={() => navigate("/")}>
+        ← Back
+      </button>
       <div className={styles.nameRow}>
         <div className={styles.name}>{name}</div>
         <div className={styles.badge}>Assistant</div>

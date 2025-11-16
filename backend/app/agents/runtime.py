@@ -1,7 +1,8 @@
 from typing import List, Dict, Any
 from sqlalchemy.orm import Session
-
+from datetime import datetime
 from app.db.models import Assistant, Run, Message
+from app.llm.client import call_llm
 
 
 def _build_prompt_for_agent(
@@ -16,7 +17,7 @@ def _build_prompt_for_agent(
     for now this is a very simple concatenation. Later, you can can
     make it more structured or switch to chat-style prompts.
     """
-    system_prompt = agent_node.get("System_prompt","")
+    system_prompt = agent_node.get("system_prompt", "")
     role = agent_node.get("role",agent_node.get("id","agent"))
     
     history_texts= []
@@ -34,71 +35,157 @@ def _build_prompt_for_agent(
     
     return prompt
 
-def _dummy_llm_call(prompt:str,agent_id:str)->str:
+
+def _real_llm_call(
+    system_prompt: str,
+    history: List[Message],
+    new_user_content: str | None = None,
+) -> str:
     """
-    Temporary placeholder for an LLM call.
+    Build a simple chat history and call Groq.
+
+    - system_prompt: the agent's system instructions
+    - history: list of Message objects (user + agents so far in this run)
+    - new_user_content: if not None, append as the latest user message
+    """
+    messages = []
+
+    # System prompt
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+
+    # History: convert DB messages into chat format
+    for m in history:
+        role = "user" if m.sender == "user" else "assistant"
+        # For agent messages, prefix with their role for clarity
+        content = m.content
+        if m.sender != "user":
+            content = f"[{m.sender}]: {content}"
+        messages.append(
+            {
+                "role": role,
+                "content": content,
+            }
+        )
+
+    # Optional new user content (for first agent, etc.)
+    if new_user_content:
+        messages.append({"role": "user", "content": new_user_content})
+
+    # Add explicit instruction for researcher to ensure it responds
+    if "researcher" in system_prompt.lower() or "research agent" in system_prompt.lower():
+        messages.append({
+            "role": "user",
+            "content": "Now provide your research findings based on the plan above. Include detailed information, facts, trends, and examples. Make sure to provide substantial content."
+        })
     
-    for now, it just return a simple string so you can
-    verify the full runtime flow.
-    Later, you will replace this with a real GROQ
-    call using your settings.Groq_API_KEY.
-    """
-    # You can print the prompt for debugging if you want
-    # print("LLM PROMPT:\n", prompt)
-    return f"[{agent_id}](dummy) response based on the prompt"
+    # Add explicit instruction for writer to ensure it responds
+    if "writer" in system_prompt.lower() or "writing agent" in system_prompt.lower():
+        messages.append({
+            "role": "user",
+            "content": "Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response."
+        })
+
+    return call_llm(messages)
         
 def run_assistant_graph(
-    db:Session,
-    assistant:Assistant,
-    run:Run,
-)->List[Message]:
+    db: Session,
+    assistant: Assistant,
+    run: Run,
+) -> list[Message]:
     """
-    Core multi-agent orchestration function.
-    
-    -Takes an Assistant (with graph_json),
-    and a Run (with input_text).
-    - creates a user message as the first message.
-    - then, for each node in graph_json["nodes] in order:
-     *builds a prompt
-     *calls the LLM
-     *inserts a message row for that agent 
-     
-    Returns the list of messages instance in this run.
-    
+    Execute the assistant's agent graph (Planner -> Researcher -> Writer)
+    and store all messages in the DB.
+
+    Returns the list of Message objects for this run.
     """
-    all_messages:List[Message] = []
-    
-    user_message = Message(
-        run_id = run.id,
-        sender = "user",
-        content = run.input_text,
-        message_metadata = None,
-    )
-    db.add(user_message)
-    db.flush()
-    all_messages.append(user_message)
-    
+
     graph = assistant.graph_json or {}
     nodes = graph.get("nodes", [])
+
+    # 1) Create initial user message from run.input_text
+    user_message = Message(
+        run_id=run.id,
+        sender="user",
+        content=run.input_text,
+        message_metadata=None,
+        created_at=datetime.utcnow(),
+    )
+    db.add(user_message)
+    db.commit()
+    db.refresh(user_message)
+
+    messages_for_this_run: list[Message] = [user_message]
+
+    # 2) Iterate through nodes in order (Planner -> Researcher -> Writer)
+    agent_nodes = [n for n in nodes if n.get("type") == "agent"]
     
-    for node in nodes:
-        agent_id = node.get("id","agent")
-        prompt = _build_prompt_for_agent(node, all_messages)
-        
-        # TODO : Replace _dummy_llm_call with a real llm call
-        agent_response = _dummy_llm_call(prompt, agent_id)
-        
+    print(f"[DEBUG] Found {len(agent_nodes)} agent nodes to process")
+    
+    for idx, node in enumerate(agent_nodes):
+        agent_id = node.get("id", "agent")
+        system_prompt = node.get("system_prompt", "")
+        role_name = node.get("role", agent_id)
+
+        print(f"[DEBUG] Processing agent {idx+1}/{len(agent_nodes)}: {agent_id} ({role_name})")
+
+        # History is all messages so far in this run
+        history = messages_for_this_run
+
+        # For simplicity, we don't add extra new_user_content here,
+        # we just let the agent see the full history.
+        try:
+            print(f"[DEBUG] Calling LLM for {agent_id} with {len(history)} messages in history")
+            llm_output = _real_llm_call(
+                system_prompt=system_prompt,
+                history=history,
+                new_user_content=None,
+            )
+            
+            print(f"[DEBUG] {agent_id} returned {len(llm_output) if llm_output else 0} characters")
+            
+            # Ensure we got output - retry with more explicit prompt if empty
+            if not llm_output or not llm_output.strip():
+                print(f"[WARNING] {agent_id} produced empty output! Retrying with explicit prompt...")
+                try:
+                    # Retry with a more direct instruction
+                    retry_output = _real_llm_call(
+                        system_prompt=system_prompt,
+                        history=history,
+                        new_user_content=f"IMPORTANT: You must provide a detailed {role_name.lower()} response. Do not leave it empty. Provide at least 3-5 sentences with specific information, facts, or analysis.",
+                    )
+                    if retry_output and retry_output.strip():
+                        llm_output = retry_output
+                        print(f"[SUCCESS] {agent_id} produced output after retry: {len(llm_output)} characters")
+                    else:
+                        llm_output = f"[{role_name} completed but produced no output after retry]"
+                except Exception as retry_e:
+                    print(f"[ERROR] Retry failed for {agent_id}: {str(retry_e)}")
+                    llm_output = f"[{role_name} completed but produced no output]"
+        except Exception as e:
+            print(f"[ERROR] Exception in {agent_id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            llm_output = f"[Error in {role_name}: {str(e)}]"
+
         agent_message = Message(
-            run_id = run.id,
-            sender = agent_id,
-            content = agent_response,
-            message_metadata = None,
+            run_id=run.id,
+            sender=agent_id,
+            content=llm_output,
+            message_metadata=None,
+            created_at=datetime.utcnow(),
         )
         db.add(agent_message)
-        db.flush()
-        all_messages.append(agent_message)
-        
-        # NOTE : we do not commit here; the router will handle commit/rollback
-        # after updating run.status etc
-        
-        return all_messages
+        db.commit()
+        db.refresh(agent_message)
+
+        messages_for_this_run.append(agent_message)
+
+    # 3) Mark run completed
+    run.status = "completed"
+    run.completed_at = datetime.utcnow()
+    db.add(run)
+    db.commit()
+    db.refresh(run)
+
+    return messages_for_this_run

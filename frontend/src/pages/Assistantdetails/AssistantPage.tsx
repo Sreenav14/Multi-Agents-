@@ -4,6 +4,8 @@ import { useAssistant } from "../../hooks/useAssistant";
 import AssistantHeader from "../../components/assistant/AssistantHeader";
 import AgentList from "../../components/assistant/AgentList";
 import type { AgentNodeProps } from "../../components/assistant/AgentNode";
+import Playground from "../../components/assistant/Playground";
+
 
 const AssistantPage: React.FC = () => {
   const params = useParams();
@@ -53,7 +55,11 @@ const AssistantPage: React.FC = () => {
         <AgentList agents={agents} />
       </div>
 
-      {/* Right column: Playground placeholder for now */}
+      {/* Right column: Playground */}
+      <Playground
+        assistantName={assistant.name}
+        assistantId={assistant.id}
+      />
       <div
         style={{
           borderRadius: 14,

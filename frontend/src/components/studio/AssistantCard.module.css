@@ -1,6 +1,10 @@
 root {
 }
 
+.cardWrapper {
+  position: relative;
+}
+
 .spec {
   font-size: 0.78rem;
   color: #9ca3af;
@@ -13,4 +17,34 @@ root {
   display: flex;
   justify-content: space-between;
   color: #6b7280;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.deleteButton:active {
+  transform: scale(0.95);
 }

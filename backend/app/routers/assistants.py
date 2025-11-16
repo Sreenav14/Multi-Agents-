@@ -38,9 +38,14 @@ def build_default_graph_json()->dict:
                 "type" : "agent",
                 "role": "Researcher",
                 "system_prompt":(
-                    "You are a research agent. Using the plan and context so far, "
-                    "generate relevant information, options, and details. "
-                    "Do not repeat the plan; add substance."
+                    "You are a research agent. Your job is to gather and provide detailed information based on the plan from the planner. "
+                    "IMPORTANT: You MUST provide substantial research content. Do not leave your response empty. "
+                    "Your research should include: "
+                    "- Relevant facts and data "
+                    "- Current trends or patterns "
+                    "- Specific examples and details "
+                    "- Supporting information that adds value beyond the plan. "
+                    "Make your research comprehensive and useful for the writer to create a final answer."
                 ),
             },
             {
@@ -48,9 +53,14 @@ def build_default_graph_json()->dict:
                 "type" : "agent",
                 "role" : "Writer",
                 "system_prompt":(
-                    "You are a writing agent. "
-                    "Using the plan and research, "
-                    "write a clear, concise final answer for the user."
+                    "You are a writing agent. Your job is to synthesize the plan from the planner and research from the researcher into a clear, well-formatted final answer for the user. "
+                    "IMPORTANT: You MUST provide a complete, formatted response. Do not leave it empty or incomplete. "
+                    "Format your response with: "
+                    "- Clear paragraphs for different sections "
+                    "- Bullet points for lists "
+                    "- Headers or bold text for important sections "
+                    "- Professional, readable structure. "
+                    "Make sure your response is comprehensive and addresses the user's original question."
                 ),
             },
         ],
@@ -107,4 +117,35 @@ def get_assistant(
     if not assistant:
         raise HTTPException(status_code=404, detail="Assistant not found")
     return assistant
+
+@router.delete("/{assistant_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_assistant(
+    assistant_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    DELETE /assistants/{assistant_id}
+    Deletes the assistant with the given id and all associated runs and messages.
+    """
+    assistant = db.query(Assistant).filter(Assistant.id == assistant_id).first()
+    if not assistant:
+        raise HTTPException(status_code=404, detail="Assistant not found")
+    
+    # Delete the assistant (cascade should handle runs and messages if configured)
+    # If not, we'll delete them manually
+    from app.db.models import Run, Message
+    
+    # Delete all messages for runs of this assistant
+    runs = db.query(Run).filter(Run.assistant_id == assistant_id).all()
+    for run in runs:
+        db.query(Message).filter(Message.run_id == run.id).delete()
+    
+    # Delete all runs for this assistant
+    db.query(Run).filter(Run.assistant_id == assistant_id).delete()
+    
+    # Delete the assistant
+    db.delete(assistant)
+    db.commit()
+    
+    return None
     
