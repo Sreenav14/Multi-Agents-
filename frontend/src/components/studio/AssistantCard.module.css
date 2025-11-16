@@ -1,0 +1,16 @@
+root {
+}
+
+.spec {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.meta {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+}
