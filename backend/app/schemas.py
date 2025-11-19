@@ -37,8 +37,6 @@ class AssistantRead(AssistantBase):
 
 # Message Schemas
 
-# Message Schemas
-
 class MessageRead(BaseModel):
     id:int
     run_id:int
@@ -64,7 +62,7 @@ class RunCreate(RunBase):
         "input_text":""
     }
     """
-    pass
+    chat_id: Optional[int] = None
 
 class RunRead(BaseModel):
     id:int
@@ -85,3 +83,16 @@ class RunWithMessages(RunRead):
     Post / assistants/{id}/runs
     """
     messages: List[MessageRead]
+    
+class ChatBase(BaseModel):
+    assistant_id: int
+    title: Optional[str] = None
+    
+class ChatRead(ChatBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+        

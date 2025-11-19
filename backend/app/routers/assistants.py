@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from app.db.models import Assistant
 from app.schemas import AssistantCreate, AssistantRead
 from app.db.session import get_db
+from app.db.models import Run, Message, Chat
+
 
 
 router = APIRouter(
@@ -133,7 +135,6 @@ def delete_assistant(
     
     # Delete the assistant (cascade should handle runs and messages if configured)
     # If not, we'll delete them manually
-    from app.db.models import Run, Message
     
     # Delete all messages for runs of this assistant
     runs = db.query(Run).filter(Run.assistant_id == assistant_id).all()
@@ -142,6 +143,7 @@ def delete_assistant(
     
     # Delete all runs for this assistant
     db.query(Run).filter(Run.assistant_id == assistant_id).delete()
+    db.query(Chat).filter(Chat.assistant_id == assistant_id).delete()
     
     # Delete the assistant
     db.delete(assistant)

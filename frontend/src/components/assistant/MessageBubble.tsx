@@ -19,8 +19,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     ? `${styles.bubble} ${styles.bubbleUser}`
     : `${styles.bubble} ${styles.bubbleAgent}`;
 
-  // User gets label "You", agents keep sender id (planner / researcher / writer)
-  const label = isUser ? "You" : sender;
+  const label = isUser ? "You" : "Assistant";
 
   return (
     <div className={`${styles.row} ${rowClass}`}>

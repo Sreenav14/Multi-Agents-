@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.base import Base
 
+
 class Assistant(Base):
     __tablename__ = "assistants"
     
@@ -18,12 +19,29 @@ class Assistant(Base):
     updated_at = Column(DateTime, default = datetime.utcnow,onupdate = datetime.utcnow, nullable = False)
     
     runs = relationship("Run", back_populates = "assistant")
+    chats = relationship("Chat", back_populates = "assistant")
+
+class Chat(Base):
+    __tablename__ = "chats"
+    
+    id = Column(Integer, primary_key = True, index =True)
+    assistant_id = Column(Integer, ForeignKey("assistants.id"), nullable = False)
+    title = Column(String(255), nullable = True)
+    created_at = Column(DateTime, default = datetime.utcnow, nullable = False)
+    updated_at = Column(DateTime, default = datetime.utcnow, onupdate = datetime.utcnow, nullable = False)
+    
+    assistant = relationship("Assistant", back_populates = "chats")
+    runs = relationship("Run", back_populates = "chat")
+    
+
+
     
 class Run(Base):
     __tablename__ = "runs"
     
     id = Column(Integer, primary_key = True, index = True)
     assistant_id = Column(Integer, ForeignKey("assistants.id"), nullable = False)
+    chat_id = Column(Integer, ForeignKey("chats.id"), nullable = True)
     status = Column(String(50), default="created", nullable = False)
     input_text = Column(Text, nullable=False)
     
@@ -33,6 +51,7 @@ class Run(Base):
     
     assistant = relationship("Assistant", back_populates = "runs")
     messages = relationship("Message", back_populates = "run")
+    chat = relationship("Chat", back_populates = "runs")
     
 class Message(Base):
     __tablename__ = "messages"

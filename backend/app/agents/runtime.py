@@ -81,10 +81,21 @@ def _real_llm_call(
     
     # Add explicit instruction for writer to ensure it responds
     if "writer" in system_prompt.lower() or "writing agent" in system_prompt.lower():
-        messages.append({
-            "role": "user",
-            "content": "Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response."
-        })
+        current_user_question = None
+        for m in reversed(history):
+            if m.sender == "user":
+                current_user_question = m.content
+                break
+        if current_user_question:
+            messages.append({
+                "role": "user",
+                "content": f"Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response. User question: {current_user_question}"
+            })
+        else:
+            messages.append({
+                "role": "user",
+                "content": "Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response."
+            })
 
     return call_llm(messages)
         
@@ -92,6 +103,7 @@ def run_assistant_graph(
     db: Session,
     assistant: Assistant,
     run: Run,
+    previous_messages: List[Message] = []
 ) -> list[Message]:
     """
     Execute the assistant's agent graph (Planner -> Researcher -> Writer)
@@ -102,6 +114,7 @@ def run_assistant_graph(
 
     graph = assistant.graph_json or {}
     nodes = graph.get("nodes", [])
+    messages_for_this_run : list[Message] = previous_messages.copy()
 
     # 1) Create initial user message from run.input_text
     user_message = Message(
@@ -115,7 +128,7 @@ def run_assistant_graph(
     db.commit()
     db.refresh(user_message)
 
-    messages_for_this_run: list[Message] = [user_message]
+    messages_for_this_run.append(user_message)
 
     # 2) Iterate through nodes in order (Planner -> Researcher -> Writer)
     agent_nodes = [n for n in nodes if n.get("type") == "agent"]

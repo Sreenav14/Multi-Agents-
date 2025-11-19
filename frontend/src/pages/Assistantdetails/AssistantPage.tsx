@@ -6,7 +6,6 @@ import AgentList from "../../components/assistant/AgentList";
 import type { AgentNodeProps } from "../../components/assistant/AgentNode";
 import Playground from "../../components/assistant/Playground";
 
-
 const AssistantPage: React.FC = () => {
   const params = useParams();
   const id = params.assistantId ? Number(params.assistantId) : undefined;
@@ -25,7 +24,6 @@ const AssistantPage: React.FC = () => {
     return <div>Failed to load assistant: {error || "Unknown error"}</div>;
   }
 
-  // Safely parse graph_json as we expect shape { nodes: [...] }
   const nodes = (assistant.graph_json as any)?.nodes ?? [];
 
   const agents: AgentNodeProps[] = nodes
@@ -42,7 +40,9 @@ const AssistantPage: React.FC = () => {
         display: "grid",
         gridTemplateColumns: "minmax(260px, 320px) minmax(0, 1fr)",
         gap: 16,
-        height: "100%",
+        height: "100vh", // ✅ Full viewport height
+        padding: 16,
+        boxSizing: "border-box",
       }}
     >
       {/* Left column: assistant info + agent graph */}
@@ -55,33 +55,12 @@ const AssistantPage: React.FC = () => {
         <AgentList agents={agents} />
       </div>
 
-      {/* Right column: Playground */}
+      {/* Right column: Playground - Full size */}
       <Playground
         assistantName={assistant.name}
         assistantId={assistant.id}
       />
-      <div
-        style={{
-          borderRadius: 14,
-          border: "1px solid rgba(148, 163, 184, 0.45)",
-          padding: 16,
-          boxSizing: "border-box",
-          background:
-            "radial-gradient(circle at top left, #020617, #020617)",
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-        }}
-      >
-        <div style={{ fontSize: "0.9rem", fontWeight: 500, color: "#e5e7eb" }}>
-          Playground
-        </div>
-        <div style={{ fontSize: "0.8rem", color: "#9ca3af" }}>
-          Here you&apos;ll be able to chat with this assistant using the
-          Planner → Researcher → Writer graph. We&apos;ll wire this up in the
-          next step.
-        </div>
-      </div>
+      {/* ✅ Removed duplicate div */}
     </div>
   );
 };

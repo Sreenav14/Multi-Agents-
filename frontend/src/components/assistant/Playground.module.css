@@ -1,6 +1,3 @@
-root {
-}
-
 .wrapper {
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.45);
@@ -10,13 +7,19 @@ root {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* ✅ Full size */
   height: 100%;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .title {
@@ -30,10 +33,33 @@ root {
   color: #9ca3af;
 }
 
+.chatHistorySection {
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chatHistorySection h3 {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0 0 8px 0;
+}
+
+.transcriptSection {
+  /* ✅ Takes all available space */
+  flex: 1;
+  min-height: 200px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .inputBlock {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .textarea {
@@ -63,9 +89,4 @@ root {
 .helper {
   font-size: 0.75rem;
   color: #6b7280;
-}
-
-.transcriptSection {
-  flex: 1;
-  min-height: 140px;
 }

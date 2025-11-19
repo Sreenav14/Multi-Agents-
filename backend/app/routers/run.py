@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.db.session import get_db
-from app.db.models import Assistant, Run, Message
+from app.db.models import Assistant, Run, Message, Chat
 from app.schemas import RunCreate
 from app.agents.runtime import run_assistant_graph
+from app.schemas import RunRead, MessageRead
+
 
 router = APIRouter(prefix="/assistants", tags=["runs"])
 
@@ -20,21 +22,42 @@ def create_run_for_assistant(
     assistant = db.query(Assistant).filter(Assistant.id == assistant_id).first()
     if not assistant:
         raise HTTPException(status_code=404, detail="Assistant not found")
+    chat_id = payload.chat_id
 
-    run = Run(
-        assistant_id=assistant.id,
-        status="running",
-        input_text=payload.input_text,
-        created_at=datetime.utcnow(),
-        completed_at=None,
-        error_message=None,
-    )
+    if chat_id:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+    else:
+        chat = Chat(assistant_id = assistant.id,
+                    title = payload.input_text[:50],)
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
+        
+    previous_messages = []
+    
+    if chat_id:
+        previous_runs = db.query(Run).filter(Run.chat_id == chat_id).all()
+        for run in previous_runs:
+            run_messages = db.query(Message).filter(Message.run_id == run.id).order_by(Message.created_at).all()
+            previous_messages.extend(run_messages)
+            
+    run = Run(assistant_id = assistant.id,
+              chat_id = chat.id,
+              status = "running",
+              input_text = payload.input_text,
+              created_at = datetime.utcnow(),
+              completed_at = None,
+              error_message = None,
+              )
     db.add(run)
     db.commit()
     db.refresh(run)
-
+    
     try:
-        messages = run_assistant_graph(db=db, assistant=assistant, run=run)
+        messages = run_assistant_graph(db=db, assistant=assistant, run=run,previous_messages=previous_messages)
     except Exception as e:
         run.status = "failed"
         error_msg = str(e)
@@ -59,13 +82,24 @@ def create_run_for_assistant(
 
     # Make sure run is refreshed (status 'completed')
     db.refresh(run)
-
-    # Return run and messages to match frontend expectation
-    from app.schemas import RunRead, MessageRead
     run_read = RunRead.model_validate(run)
     message_reads = [MessageRead.model_validate(m) for m in messages]
     
-    return {
+    return{
         "run": run_read.model_dump(),
         "messages": [m.model_dump() for m in message_reads],
+        "chat_id": chat.id,
+        
     }
+            
+
+
+
+
+
+
+
+
+
+
+
