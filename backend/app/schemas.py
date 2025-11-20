@@ -96,3 +96,8 @@ class ChatRead(ChatBase):
     class Config:
         from_attributes = True
         
+# UserToolConnection
+
+class MCPServerBase(BaseModel):
+    name : str
+    description : Optional[str] = None

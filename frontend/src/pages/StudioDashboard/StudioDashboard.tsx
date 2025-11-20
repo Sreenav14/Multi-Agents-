@@ -65,7 +65,10 @@ const StudioDashboard: React.FC = () => {
       <Button onClick={handleNewAssistantClick}>
         {showNewForm ? "Close" : "New Assistant"}
       </Button>
-    </div>
+      <Button onClick={() => navigate("/studio")}>Open Studio</Button>
+      <Button onClick={() => navigate("/studio/workspace")}>Open MCP Studio Workspace</Button>
+      
+    </div>  
   );
 
   if (loading) {
@@ -118,5 +121,7 @@ const StudioDashboard: React.FC = () => {
     </>
   );
 };
+
+
 
 export default StudioDashboard;

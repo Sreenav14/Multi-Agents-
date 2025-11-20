@@ -4,8 +4,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 import StudioDashboard from "./pages/StudioDashboard/StudioDashboard";
-import AssistantPage from "./pages/Assistantdetails/AssistantPage"; // we'll create this next
+import AssistantPage from "./pages/Assistantdetails/AssistantPage"; 
 import AppShell from "./layout/AppShell";
+import StudioWorkspace from "./pages/StudioWorkspace";
+
 
 
 const App: React.FC = () => {
@@ -15,6 +17,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<StudioDashboard />} />
         <Route path="/assistants/:assistantId" element={<AssistantPage />} />
+        <Route path="/studio" element={<StudioWorkspace />} />
       </Routes>
     </BrowserRouter>
     </AppShell>
