@@ -27,3 +27,20 @@ export async function fetchAssistantById(id:number): Promise<Assistant> {
 export async function deleteAssistant(id: number): Promise<void> {
     await apiClient.delete(`/assistants/${id}`);
 }
+
+export async function updateAssistantGraph(
+  assistantId: number,
+  graphJson: any
+): Promise<Assistant> {
+  const res = await apiClient.put<Assistant>(`assistants/${assistantId}/graph`,{
+    graph_json : graphJson,
+  });
+  return res.data;
+}
+
+export async function fetchAssistant(
+  assistantId: number
+): Promise<Assistant>{
+  const response = await apiClient.get<Assistant>(`/assistants/${assistantId}`);
+  return response.data;
+}

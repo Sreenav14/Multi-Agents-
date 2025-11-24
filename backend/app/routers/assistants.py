@@ -1,11 +1,12 @@
 from typing import List, Optional
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.models import Assistant
-from app.schemas import AssistantCreate, AssistantRead
+from app.db.models import Assistant, Run, Message, Chat
+from app.schemas import AssistantCreate, AssistantRead, AssistantGraphUpdate
 from app.db.session import get_db
-from app.db.models import Run, Message, Chat
 
 
 
@@ -150,4 +151,39 @@ def delete_assistant(
     db.commit()
     
     return None
+    
+@router.put("/{assistant_id}/graph", response_model=AssistantRead)
+def update_assistant_graph(
+    assistant_id:int,
+    payload : AssistantGraphUpdate,
+    db: Session = Depends(get_db),):
+    """
+    update only the assistant graph json
+    frontend will send the entire graph structure indicating any tool_ids set on each agent node
+    
+    example payload:
+    {
+        "graph_json":{
+            "nodes":[
+                {
+                    "id":"planner",
+                    "role":"planner",
+                    "system_prompt":"your workflow plan",
+                    "tool_ids":[1,2,3]
+                }
+            ],
+            "edges":[...]
+        }
+    }
+    """
+    assistant = db.query(Assistant).filter(Assistant.id == assistant_id).first()
+    if not assistant:
+        raise HTTPException(status_code=404, detail="Assistant not found")
+    assistant.graph_json = payload.graph_json
+    assistant.updated_at = datetime.now()
+    
+    db.add(assistant)
+    db.commit()
+    db.refresh(assistant)
+    return assistant
     

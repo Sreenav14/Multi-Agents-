@@ -59,16 +59,14 @@ const StudioDashboard: React.FC = () => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        color: "#2C2416",
       }}
     >
-      <h1 style={{ fontSize: "1.1rem" }}>Studio</h1>
+      <h1 style={{ fontSize: "1.1rem", color: "#2C2416" }}>Studio</h1>
       <Button onClick={handleNewAssistantClick}>
-        {showNewForm ? "Close" : "New Assistant"}
+        New Assistant
       </Button>
-      <Button onClick={() => navigate("/studio")}>Open Studio</Button>
-      <Button onClick={() => navigate("/studio/workspace")}>Open MCP Studio Workspace</Button>
-      
-    </div>  
+    </div>
   );
 
   if (loading) {

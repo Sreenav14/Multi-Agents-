@@ -1,5 +1,6 @@
 // src/layout/AppShell.tsx
 import React from "react";
+import { NavLink } from "react-router-dom";
 import styles from "./AppShell.module.css";
 
 type AppShellProps = {
@@ -11,14 +12,34 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
     <div className={styles.appRoot}>
       {/* Left sidebar */}
       <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          Multi-Agents Studio
-        </div>
+        <div className={styles.sidebarHeader}>Multi-Agents Studio</div>
 
         <nav className={styles.sidebarNav}>
-          {/* For now these are just static; we'll wire them to Router later */}
-          <div className={styles.navItem}>Studio</div>
-          <div className={styles.navItem}>Runs (coming soon)</div>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              isActive ? styles.navItemActive : styles.navItem
+            }
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              isActive ? styles.navItemActive : styles.navItem
+            }
+          >
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/studio"
+            className={({ isActive }) =>
+              isActive ? styles.navItemActive : styles.navItem
+            }
+          >
+            Studio
+          </NavLink>
+          <div className={styles.navItemDisabled}>Runs (coming soon)</div>
         </nav>
       </aside>
 
@@ -26,10 +47,7 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
       <div className={styles.mainArea}>
         {/* Top bar */}
         <header className={styles.topbar}>
-          <div className={styles.topbarTitle}>
-            {/* Later we can show dynamic route title here */}
-             Multi-Agent MVP
-          </div>
+          <div className={styles.topbarTitle}>Multi-Agent MVP</div>
           <div className={styles.envBadge}>Local</div>
         </header>
 

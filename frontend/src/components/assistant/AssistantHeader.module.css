@@ -9,8 +9,8 @@ root {
 
 .backButton {
   background: transparent;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: #9ca3af;
+  border: 1px solid #D4C9B8;
+  color: #6B5B4F;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -23,9 +23,9 @@ root {
 }
 
 .backButton:hover {
-  background: rgba(148, 163, 184, 0.1);
-  border-color: rgba(148, 163, 184, 0.5);
-  color: #e5e7eb;
+  background: #EDE7DB;
+  border-color: #C4B5A0;
+  color: #2C2416;
 }
 
 .backButton:active {
@@ -42,26 +42,27 @@ root {
 .name {
   font-size: 1rem;
   font-weight: 600;
-  color: #e5e7eb;
+  color: #2C2416;
 }
 
 .badge {
   font-size: 0.7rem;
   padding: 2px 8px;
   border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  color: #9ca3af;
+  border: 1px solid #D4C9B8;
+  color: #6B5B4F;
+  background: #EDE7DB;
 }
 
 .description {
   font-size: 0.82rem;
-  color: #9ca3af;
+  color: #5A4A3A;
   margin-bottom: 6px;
 }
 
 .specLabel {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #6B5B4F;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   margin-bottom: 2px;
@@ -69,6 +70,6 @@ root {
 
 .spec {
   font-size: 0.8rem;
-  color: #cbd5f5;
+  color: #2C2416;
   white-space: pre-line;
 }

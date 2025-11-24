@@ -34,6 +34,29 @@ class AssistantRead(AssistantBase):
     
     class Config:
         from_attributes = True
+        
+# Assistant Graph Update Schema (NEW)
+
+class AssistantGraphUpdate(BaseModel):
+    """
+    used for put assistant/{assistant_id}/graph
+    allow the frontend to update the assistant graph json
+    conatining agent nodes, edges and assigned tool Ids.
+    
+    example:
+    {
+        "graph_json":{
+            "node":[{
+                "id":"planner",
+                "role":"planner",
+                "system_prompt":"...",
+                "tool_ids":[1,2,3],
+            }],
+            "edges":[]
+        }
+    }
+    """
+    graph_json: Dict[str, Any]
 
 # Message Schemas
 
@@ -95,9 +118,4 @@ class ChatRead(ChatBase):
     
     class Config:
         from_attributes = True
-        
-# UserToolConnection
 
-class MCPServerBase(BaseModel):
-    name : str
-    description : Optional[str] = None

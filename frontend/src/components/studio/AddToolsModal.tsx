@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./AddToolsModal.module.css";
 import Button from "../common/Button";
+import { createUserTool, createMcpserver} from "../../api/tools";
 
 type AddToolsModalProps = {
     onclose:()=> void;
@@ -55,29 +56,90 @@ const AddToolsModal: React.FC<AddToolsModalProps> = ({onclose}) => {
         "http"
     );
 
-    const handleConnect = (toolkey: string) => {
-    // For now just a placeholder. Later this will open a form
-    // and call POST /tools with API key, etc.
-    alert(`Connect flor for "${toolkey}" will be  implemented in the next phase. `);
+    const [isConnectingTool, setIsConnectingTool] = useState(false);
+    const [isSavingMcp, setIsSavingMcp] = useState(false);
+
+    const handleConnect = async (tool: LibraryTool) => {
+        const defaultName = `${tool.name}`;
+        const name = window.prompt("Connection name", defaultName);
+        if (!name){
+            return;
+        }
+        const apiKey = window.prompt(
+            `Enter API key for ${tool.name}`,"");
+        if (!apiKey){
+            return;
+        }
+        try{
+            setIsConnectingTool(true);
+            await createUserTool({
+                name,
+                template_key: tool.key,
+                config_json: {
+                    api_key: apiKey,
+                },
+
+            });
+            alert (`Connected ${tool.name} successfully!`);
+        }
+        catch (error: any){
+            console.error("Failed to connect tool", error);
+            // Extract error message from various possible error formats
+            let message = "Failed to connect tool";
+            if (error?.response?.data?.detail) {
+                message = typeof error.response.data.detail === 'string' 
+                    ? error.response.data.detail 
+                    : JSON.stringify(error.response.data.detail);
+            } else if (error?.response?.data?.message) {
+                message = error.response.data.message;
+            } else if (error?.message) {
+                message = error.message;
+            }
+            console.error("Full error details:", error);
+            alert(message);
+        }
+        finally{
+            setIsConnectingTool(false);
+        }
     };
 
+
+
+    
     // handler for mcp server creation
-    const handleCreateMcpServer = () =>{
+    const handleCreateMcpServer = async () =>{
         if (!mcpName || !mcpEndpoint) {
             alert("Please enter both a name and an endpoint URL for the MCP server.");
             return;
         }
-        console.log("Create MCP Server",{
-            name:mcpName,
-            endpoint: mcpEndpoint,
-            type: mcpType,
-        });
-        alert(
-            `MCP server "${mcpName} (${mcpType}) pointing to ${mcpEndpoint}" would be created here.` 
-        );
-        setMcpName("");
-        setMcpEndpoint("");
-        setMcpType("http");
+        try{
+            setIsSavingMcp(true);
+            // Normalize server_type: "websockets" -> "websocket"
+            const normalizedServerType = mcpType === "websockets" ? "websocket" : mcpType;
+            await createMcpserver({
+                name: mcpName,
+                description: "",
+                server_type: normalizedServerType as "http" | "stdio" | "websocket",
+                endpoint: mcpEndpoint,
+                config_json: null,
+            });
+            alert(`MCP Server "${mcpName}" saved`);
+
+            // Reset fields
+            setMcpName("");
+            setMcpEndpoint("");
+            setMcpType("http");
+        }
+        catch (error: any){
+            console.error("Failed to create MCP Server", error);
+            const message = error.response?.data?.detail || "Failed to create MCP Server";
+            alert(message);
+        }
+        finally{
+            setIsSavingMcp(false);
+        }
+
+        
     };
 
     return (
@@ -142,7 +204,7 @@ const AddToolsModal: React.FC<AddToolsModalProps> = ({onclose}) => {
                                         <p className={styles["add-tools-card-description"]}>
                                             {tool.description}
                                         </p>
-                                        <Button onClick={() => handleConnect(tool.key)}>
+                                        <Button onClick={() => handleConnect(tool)}>
                                             Connect
                                         </Button>
                                     </div>
@@ -181,6 +243,17 @@ const AddToolsModal: React.FC<AddToolsModalProps> = ({onclose}) => {
                                         placeholder="eg filesystem-mcp"
                                         value={mcpName}
                                         onChange={(e) => setMcpName(e.target.value)}
+                                    />
+                                </div>
+                                <div className={styles["add-tools-mcp-field"]}>
+                                    <label className={styles["add-tools-mcp-label"]}>
+                                        Endpoint
+                                    </label>
+                                    <input
+                                        className={styles["add-tools-mcp-input"]}
+                                        placeholder="eg https://localhost:8000/mcp"
+                                        value={mcpEndpoint}
+                                        onChange={(e) => setMcpEndpoint(e.target.value)}
                                     />
                                 </div>
                                 <div className={styles["add-tools-mcp-field"]}>

@@ -75,7 +75,7 @@ class MCPServer(Base):
     Represents a configured MCP server (HTTP / STDIO / WebSocket)
     These are created from the custom MCP server tab in studio 
     """
-    __tablename__ = "mcp servers"
+    __tablename__ = "mcp_servers"
     
     id = Column(Integer, primary_key = True, index = True)
     name = Column(String(255), nullable = False)
@@ -88,7 +88,7 @@ class MCPServer(Base):
     created_at = Column(DateTime, default = datetime.utcnow, nullable = False)
     updated_at = Column(DateTime, default = datetime.utcnow, onupdate = datetime.utcnow, nullable = False)
     
-    tools = relationship("MCPTool", back_populates = "server", cascade = "all ,delere-orphan")
+    tools = relationship("MCPTool", back_populates = "server", cascade = "all ,delete-orphan")
     
 class MCPTool(Base):
     """
