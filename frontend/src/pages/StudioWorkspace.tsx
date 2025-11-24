@@ -11,14 +11,12 @@ import {
   fetchUserTools,
   fetchMCPServers,
 } from "../api/tools";
-import { createAssistant, updateAssistantGraph } from "../api/assistants";
-import { createRun } from "../api/runs";
 
 import type {
   UserToolConnection,
   MCPServer,
-  AgentNode,
   Message,
+  AgentNode,
 } from "../types/api";
 
 const StudioWorkspace: React.FC = () => {
@@ -27,26 +25,15 @@ const StudioWorkspace: React.FC = () => {
   const [showAddToolsModal, setShowAddToolsModal] = useState(false);
   const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
 
-  // Tools data
+  // NEW: tools data
   const [userTools, setUserTools] = useState<UserToolConnection[]>([]);
   const [mcpServers, setMcpServers] = useState<MCPServer[]>([]);
   const [loadingTools, setLoadingTools] = useState(false);
   const [toolsError, setToolsError] = useState<string | null>(null);
 
-  // Prompts and Flow
+  const [messages] = useState<Message[]>([]);
   const [prompts, setPrompts] = useState<AgentNode[]>([]);
-  const [flowOrder, setFlowOrder] = useState<string[]>([]); // Array of prompt IDs in execution order
-  const [assistantId, setAssistantId] = useState<number | null>(null);
-  const [assistantName, setAssistantName] = useState("My Assistant");
-
-  // Chat
-  const [chatInput, setChatInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [chatId, setChatId] = useState<number | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-
-  // Deploy
-  const [isDeploying, setIsDeploying] = useState(false);
+  const [flowOrder, setFlowOrder] = useState<string[]>([]);
 
   const loadTools = async () => {
     try {
@@ -76,118 +63,6 @@ const StudioWorkspace: React.FC = () => {
     loadTools();
   }, []);
 
-  // Helper function to create graph structure from flow order
-  const createGraphFromFlow = () => {
-    const flowEdges = flowOrder
-      .slice(0, -1)
-      .map((sourceId, index) => ({
-        from: sourceId,
-        to: flowOrder[index + 1],
-      }));
-
-    const orderedNodes = flowOrder
-      .map((promptId) => {
-        const prompt = prompts.find((p) => p.id === promptId);
-        if (!prompt) return null;
-        return {
-          id: prompt.id,
-          type: "agent",
-          role: prompt.role || prompt.label,
-          system_prompt: prompt.system_prompt,
-          tool_refs: prompt.tool_refs || [],
-        };
-      })
-      .filter(Boolean);
-
-    return { nodes: orderedNodes, edges: flowEdges };
-  };
-
-  const handleRunWorkflow = async () => {
-    const inputText = chatInput.trim();
-    if (!inputText || flowOrder.length === 0) {
-      alert("Please add prompts to flow and enter a message");
-      return;
-    }
-
-    // Save input and clear field
-    const currentInput = inputText;
-    setChatInput("");
-
-    // Create temporary assistant if not exists
-    let currentAssistantId = assistantId;
-    if (!currentAssistantId) {
-      try {
-        const assistant = await createAssistant({
-          name: assistantName || "Untitled Assistant",
-          description: "Created in Studio",
-        });
-        currentAssistantId = assistant.id;
-        setAssistantId(assistant.id);
-
-        const graph = createGraphFromFlow();
-        await updateAssistantGraph(assistant.id, graph as any);
-      } catch (error: any) {
-        alert(`Failed to create assistant: ${error.message}`);
-        setChatInput(currentInput);
-        return;
-      }
-    }
-
-    setIsRunning(true);
-    try {
-      const response = await createRun(
-        currentAssistantId,
-        currentInput,
-        chatId || undefined
-      );
-
-      setChatId(response.chat_id);
-      setMessages((prev) => [...prev, ...response.messages]);
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.detail || error?.message || "Unknown error";
-      alert(`Failed to run workflow: ${errorMessage}`);
-      setChatInput(currentInput);
-    } finally {
-      setIsRunning(false);
-    }
-  };
-
-  const handleDeploy = async () => {
-    if (flowOrder.length === 0) {
-      alert("Please add prompts to flow before deploying");
-      return;
-    }
-
-    if (!assistantName.trim()) {
-      const name = prompt("Enter a name for your assistant:");
-      if (!name) return;
-      setAssistantName(name);
-    }
-
-    setIsDeploying(true);
-    try {
-      let currentAssistantId = assistantId;
-      if (!currentAssistantId) {
-        const assistant = await createAssistant({
-          name: assistantName || "Untitled Assistant",
-          description: "Created in Studio",
-        });
-        currentAssistantId = assistant.id;
-        setAssistantId(assistant.id);
-      }
-
-      const graph = createGraphFromFlow();
-      await updateAssistantGraph(currentAssistantId, graph as any);
-
-      alert("Assistant deployed successfully! It's now available on the dashboard.");
-      navigate("/dashboard");
-    } catch (error: any) {
-      alert(`Failed to deploy: ${error.message}`);
-    } finally {
-      setIsDeploying(false);
-    }
-  };
-
   return (
     <>
       <div
@@ -199,7 +74,7 @@ const StudioWorkspace: React.FC = () => {
           <div className="studio-workspace-nav">
             <button
               className="studio-workspace-back-button"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/")}
             >
               Back
             </button>
@@ -219,13 +94,6 @@ const StudioWorkspace: React.FC = () => {
             </button>
             <button
               className="studio-workspace-primary-button"
-              onClick={handleDeploy}
-              disabled={isDeploying || flowOrder.length === 0}
-            >
-              {isDeploying ? "Deploying..." : "Deploy"}
-            </button>
-            <button
-              className="studio-workspace-ghost-button"
               onClick={() => setShowAddToolsModal(true)}
             >
               + Add Tools
@@ -234,7 +102,7 @@ const StudioWorkspace: React.FC = () => {
         </header>
 
         <div className="studio-workspace-root">
-          {/* Left column - Tools + Prompts + Flow */}
+          {/* Left column - Tools + Agents + Flow */}
           <aside
             className={`studio-workspace-column studio-workspace-left ${
               isDashboardCollapsed ? "collapsed" : ""
@@ -272,9 +140,10 @@ const StudioWorkspace: React.FC = () => {
                 <div>
                   <p className="studio-workspace-label">Studio Chat</p>
                   <h2 className="studio-workspace-title-lg">
-                    Test your workflow
+                    Compose & orchestrate workflows
                   </h2>
                 </div>
+                <span className="studio-workspace-chip">MCP Preview</span>
               </div>
 
               <div className="studio-workspace-chat-window">
@@ -284,33 +153,47 @@ const StudioWorkspace: React.FC = () => {
                   </p>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    {messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        style={{
-                          padding: "12px",
-                          background:
-                            msg.sender === "user"
-                              ? "rgba(107, 91, 79, 0.15)"
-                              : "#F5F1E8",
-                          borderRadius: "8px",
-                          border: "1px solid #E8E0D4",
-                        }}
-                      >
+                    {(() => {
+                      // ✅ last agent is the last non-user sender in history
+                      const lastAgentMessage = [...messages].reverse().find(
+                        (m) => m.sender !== "user"
+                      );
+                      const lastAgentId = lastAgentMessage?.sender;
+
+                      const visible = lastAgentId
+                        ? messages.filter(
+                            (m) => m.sender === "user" || m.sender === lastAgentId
+                          )
+                        : messages;
+
+                      return visible.map((msg) => (
                         <div
+                          key={msg.id}
                           style={{
-                            fontSize: "0.75rem",
-                            color: "#8B7A6B",
-                            marginBottom: "4px",
+                            padding: "12px",
+                            background:
+                              msg.sender === "user"
+                                ? "rgba(107, 91, 79, 0.15)"
+                                : "#F5F1E8",
+                            borderRadius: "8px",
+                            border: "1px solid #E8E0D4",
                           }}
                         >
-                          {msg.sender}
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "#8B7A6B",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            {msg.sender === "user" ? "user" : "assistant"}
+                          </div>
+                          <div style={{ fontSize: "0.85rem", color: "#2C2416" }}>
+                            {msg.content}
+                          </div>
                         </div>
-                        <div style={{ fontSize: "0.85rem", color: "#2C2416" }}>
-                          {msg.content}
-                        </div>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 )}
               </div>
@@ -319,22 +202,9 @@ const StudioWorkspace: React.FC = () => {
                 <input
                   className="studio-workspace-chat-input"
                   placeholder="Ask your assistant or describe a workflow..."
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleRunWorkflow();
-                    }
-                  }}
-                  disabled={isRunning}
                 />
-                <button
-                  className="studio-workspace-primary-button"
-                  onClick={handleRunWorkflow}
-                  disabled={isRunning || flowOrder.length === 0}
-                >
-                  {isRunning ? "Running..." : "Run Workflow"}
+                <button className="studio-workspace-primary-button">
+                  Run Workflow
                 </button>
               </div>
             </div>
@@ -345,51 +215,15 @@ const StudioWorkspace: React.FC = () => {
             <div className="studio-workspace-section studio-workspace-helper">
               <h2 className="studio-workspace-title">Helper</h2>
               <p className="studio-workspace-text">
-                {prompts.length > 0 ? (
-                  <>
-                    <strong>Prompts:</strong> {prompts.length}
-                    <br />
-                    <strong>In Flow:</strong> {flowOrder.length}
-                    {flowOrder.length > 0 && (
-                      <>
-                        <br />
-                        <strong>Order:</strong>{" "}
-                        {flowOrder
-                          .map((id) => prompts.find((p) => p.id === id)?.label || id)
-                          .join(" → ")}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  "Add prompts to start building your workflow."
-                )}
+                Logs, quick references, helper agents — coming soon.
               </p>
-              <div style={{ marginTop: "12px" }}>
-                <label
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "#6B5B4F",
-                    marginBottom: "4px",
-                    display: "block",
-                  }}
-                >
-                  Assistant Name
-                </label>
-                <input
-                  type="text"
-                  value={assistantName}
-                  onChange={(e) => setAssistantName(e.target.value)}
-                  placeholder="Assistant name"
-                  style={{
-                    background: "#FAF8F3",
-                    border: "1px solid #D4C9B8",
-                    borderRadius: "6px",
-                    padding: "6px 8px",
-                    color: "#2C2416",
-                    fontSize: "0.85rem",
-                    width: "100%",
-                  }}
-                />
+              <div className="studio-workspace-helper-actions">
+                <button className="studio-workspace-secondary-button">
+                  View Logs
+                </button>
+                <button className="studio-workspace-secondary-button">
+                  Tips
+                </button>
               </div>
             </div>
           </aside>
@@ -397,12 +231,10 @@ const StudioWorkspace: React.FC = () => {
       </div>
 
       {showAddToolsModal && (
-        <AddToolsModal
-          onclose={() => {
-            setShowAddToolsModal(false);
-            loadTools();
-          }}
-        />
+        <AddToolsModal onclose={() => {
+          setShowAddToolsModal(false);
+          loadTools(); // <- important: refresh tools after connecting
+        }} />
       )}
     </>
   );

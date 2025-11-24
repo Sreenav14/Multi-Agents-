@@ -57,6 +57,9 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ### 2. Frontend Setup
 
+> All frontend commands must be run **inside the `frontend/` folder**.  
+> Running `npm run dev` from the repo root will fail because the script only exists in `frontend/package.json`.
+
 ```bash
 # Go to frontend folder
 cd frontend
@@ -65,23 +68,26 @@ cd frontend
 npm install
 
 # Start the frontend
-npm run dev
+npm run dev          # launches Vite (defaults to http://localhost:5173)
 ```
 
 ### 3. Open the App
 
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+- Frontend UI: http://localhost:5173  
+- Backend API base: http://localhost:8000  
+- Interactive docs: http://localhost:8000/docs
+
+If `npm run dev` reports “Port 5173 is in use”, either close the conflicting process or let Vite pick a new port (shown in its console output).
 
 ## How to Use
 
-1. **Start both servers** (backend and frontend)
-2. **Go to** http://localhost:5173
-3. **Click "New Assistant"** to create one
-4. **Click on an assistant** to open it
-5. **Type a question** in the playground
-6. **Click "Run"** and watch the agents work!
+1. Start both servers (backend on 8000, frontend on 5173+).
+2. Visit http://localhost:5173.
+3. Use the sidebar to open **Dashboard** or **Studio**.
+4. In **Studio**, add agents (Prompts Section) and order them (Flow Section).
+5. Use the chat input at the bottom of the middle column to test your workflow.
+6. “Run Workflow” executes all agents in order but only shows the final agent’s reply for clarity.
+7. Click **Deploy** to save the assistant and make it appear on the Dashboard.
 
 ## Complete File Structure
 
@@ -142,13 +148,11 @@ npm run dev
 - **`app.tsx`** - Main App component with React Router setup and route definitions
 
 ##### `frontend/src/pages/` - Page Components
-- **`HomePage.tsx`** - Landing page with hero section and navigation buttons
-- **`HomePage.module.css`** - Styles for home page (cream theme)
-- **`StudioDashboard/StudioDashboard.tsx`** - Dashboard page listing all assistants
-- **`StudioWorkspace.tsx`** - Main Studio workspace for building workflows (prompts, flow, chat)
-- **`StudioWorkspace.css`** - Styles for Studio workspace (cream theme)
-- **`Assistantdetails/AssistantPage.tsx`** - Assistant detail page with playground
-- **`AssistantEditor/AssistantEditor.tsx`** - Legacy editor component (deprecated, functionality moved to StudioWorkspace)
+- **`HomePage.tsx`** / **`.module.css`** – Landing page with CTA buttons.
+- **`StudioDashboard/StudioDashboard.tsx`** – Lists assistants, links to Studio.
+- **`StudioWorkspace.tsx`** / **`.css`** – Multi-column Studio (tools, agents/flow, chat, helper).
+- **`Assistantdetails/AssistantPage.tsx`** – Assistant view with playground chat.
+- **`AssistantEditor/AssistantEditor.tsx`** – Legacy editor (kept for reference).
 
 ##### `frontend/src/components/` - Reusable Components
 
@@ -162,21 +166,12 @@ npm run dev
 - **`Spinner.tsx`** - Loading spinner component
 
 **`studio/` - Studio-Specific Components**
-- **`PromptsSection.tsx`** - Component for creating/editing agent prompts
-- **`FlowSection.tsx`** - Component for defining agent execution order
-- **`ToolsPanel.tsx`** - Panel displaying available tools
-- **`ToolsPanel.module.css`** - Tools panel styles
-- **`AddToolsModal.tsx`** - Modal for adding tools and MCP servers
-- **`AddToolsModal.module.css`** - Modal styles
-- **`AssistantCard.tsx`** - Card component for displaying assistant in grid
-- **`AssistantCard.module.css`** - Assistant card styles
-- **`AssistantGrid.tsx`** - Grid layout for assistant cards
-- **`AssistantGrid.module.css`** - Grid styles
-- **`NewAssistantForm.tsx`** - Form for creating new assistants (legacy)
-- **`NewAssistantForm.module.css`** - Form styles
-- **`agent-editor/AgentEditorPanel.tsx`** - Legacy agent editor panel
-- **`agent-editor/AgentList.tsx`** - Legacy agent list component
-- **`agent-editor/ToolSelector.tsx`** - Legacy tool selector component
+- **`PromptsSection.tsx` / `.module.css`** – Add/edit agents with names + system prompts.
+- **`FlowSection.tsx` / `.module.css`** – Define the execution order (1→2→3 etc.).
+- **`ToolsPanel.tsx` / `.module.css`** – Shows user/MCP tools and “Add Tools” button.
+- **`AddToolsModal.tsx` / `.module.css`** – Connect MCP servers or custom tools.
+- **`AssistantCard.tsx` / `.module.css`**, **`AssistantGrid.tsx` / `.module.css`** – Dashboard cards and grid.
+- **`NewAssistantForm.tsx` / `.module.css`**, **`agent-editor/*`** – Legacy editor components kept for reference.
 
 **`assistant/` - Assistant View Components**
 - **`Playground.tsx`** - Chat playground for interacting with assistants
@@ -234,21 +229,22 @@ npm run dev
 ## Troubleshooting
 
 **Backend won't start?**
-- Make sure PostgreSQL is running
-- Check your `.env` file has the correct database URL
-- Make sure you're in the `backend/` folder when running uvicorn
+- Verify PostgreSQL is running and accessible at `DATABASE_URL`.
+- Confirm `.env` exists in project root (loaded by `backend/app/core/config.py`).
+- Run uvicorn from inside `backend/`: `cd backend && uvicorn app.main:app --reload`.
 
 **Frontend won't start?**
-- Run `npm install` in the `frontend/` folder
-- Make sure the backend is running first
+- Run commands from `frontend/` (not the repo root).
+- Ensure no other process is using port 5173 (or let Vite choose another).
+- Run `npm install` if dependencies changed.
 
-**Can't create assistants?**
-- Check that the backend is running on port 8000
-- Check your Groq API key is correct in the `.env` file
+**404 when hitting http://127.0.0.1:8000/?**
+- Expected. The backend only serves APIs. Use `/docs` or call `/assistants`, `/runs`, etc.
 
 **Agents not responding?**
-- Check your Groq API key is valid
-- Look at the backend terminal for error messages
+- Confirm Groq API key is valid and in `.env`.
+- Check backend logs for LLM or DB errors.
+- Make sure you added agents to the flow in Studio before running workflows.
 
 ## Tech Stack
 

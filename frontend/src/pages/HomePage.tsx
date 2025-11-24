@@ -1,6 +1,6 @@
 import React from "react";
-import styles from "./HomePage.module.css";
 import { useNavigate } from "react-router-dom";
+import styles from "./HomePage.module.css";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +35,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
-
-
-
-

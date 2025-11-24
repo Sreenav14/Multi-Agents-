@@ -7,7 +7,7 @@ root {
 
 .spec {
   font-size: 0.78rem;
-  color: #8B7A6B;
+  color: #9ca3af;
   margin-top: 4px;
 }
 
@@ -16,16 +16,16 @@ root {
   font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
-  color: #6B5B4F;
+  color: #6b7280;
 }
 
 .deleteButton {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(220, 38, 38, 0.1);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  color: #DC2626;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
   width: 24px;
   height: 24px;
   border-radius: 4px;
@@ -40,9 +40,9 @@ root {
 }
 
 .deleteButton:hover {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: rgba(220, 38, 38, 0.5);
-  color: #B91C1C;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
 }
 
 .deleteButton:active {

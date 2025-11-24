@@ -1,11 +1,16 @@
+// frontend/src/App.tsx
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 
 import StudioDashboard from "./pages/StudioDashboard/StudioDashboard";
 import AssistantPage from "./pages/Assistantdetails/AssistantPage";
 import AppShell from "./layout/AppShell";
 import StudioWorkspace from "./pages/StudioWorkspace";
 import HomePage from "./pages/HomePage";
+import AssistantEditor from "./pages/AssistantEditor/AssistantEditor";
+
+
 
 const App: React.FC = () => {
   return (
@@ -16,9 +21,11 @@ const App: React.FC = () => {
           <Route path="/dashboard" element={<StudioDashboard />} />
           <Route path="/assistants/:assistantId" element={<AssistantPage />} />
           <Route path="/studio" element={<StudioWorkspace />} />
+          <Route path="/assistant-editor/:assistantId" element={<AssistantEditor />} />
         </Routes>
       </AppShell>
     </BrowserRouter>
+    
   );
 };
 

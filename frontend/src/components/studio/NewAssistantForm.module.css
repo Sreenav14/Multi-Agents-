@@ -4,12 +4,12 @@ root {
 
 .wrapper {
   border-radius: 14px;
-  border: 1px solid #E8E0D4;
-  background: #F5F1E8;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  background: radial-gradient(circle at top left, #020617, #020617);
   padding: 16px 16px 14px 16px;
   max-width: 520px;
   box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(44, 36, 22, 0.08);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.8);
 }
 
 .header {
@@ -22,12 +22,12 @@ root {
 .title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #2C2416;
+  color: #e5e7eb;
 }
 
 .subtitle {
   font-size: 0.8rem;
-  color: #5A4A3A;
+  color: #9ca3af;
 }
 
 .form {
@@ -45,41 +45,39 @@ root {
 
 .label {
   font-size: 0.8rem;
-  color: #6B5B4F;
+  color: #cbd5f5;
 }
 
 .input {
   border-radius: 8px;
-  border: 1px solid #D4C9B8;
-  background: #FAF8F3;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
   padding: 8px 10px;
   font-size: 0.85rem;
-  color: #2C2416;
+  color: #f9fafb;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 .input:focus {
-  border-color: #8B7A6B;
-  box-shadow: 0 0 0 3px rgba(139, 122, 107, 0.1);
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
 }
 
 .textarea {
   border-radius: 8px;
-  border: 1px solid #D4C9B8;
-  background: #FAF8F3;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
   padding: 8px 10px;
   font-size: 0.85rem;
-  color: #2C2416;
+  color: #f9fafb;
   min-height: 70px;
   resize: vertical;
   outline: none;
-  transition: all 0.2s ease;
 }
 
 .textarea:focus {
-  border-color: #8B7A6B;
-  box-shadow: 0 0 0 3px rgba(139, 122, 107, 0.1);
+  border-color: rgba(59, 130, 246, 0.85);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
 }
 
 .actions {
@@ -92,8 +90,8 @@ root {
 .secondaryButton {
   background: transparent;
   border-radius: 8px;
-  border: 1px solid #D4C9B8;
-  color: #5A4A3A;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  color: #e5e7eb;
   font-size: 0.85rem;
   padding: 7px 12px;
   cursor: pointer;
@@ -101,6 +99,6 @@ root {
 }
 
 .secondaryButton:hover {
-  background-color: #EDE7DB;
-  border-color: #C4B5A0;
+  background-color: rgba(15, 23, 42, 0.9);
+  border-color: rgba(148, 163, 184, 0.9);
 }
