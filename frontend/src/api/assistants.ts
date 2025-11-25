@@ -32,7 +32,7 @@ export async function updateAssistantGraph(
   assistantId: number,
   graphJson: any
 ): Promise<Assistant> {
-  const res = await apiClient.put<Assistant>(`assistants/${assistantId}/graph`,{
+  const res = await apiClient.put<Assistant>(`/assistants/${assistantId}/graph`,{
     graph_json : graphJson,
   });
   return res.data;

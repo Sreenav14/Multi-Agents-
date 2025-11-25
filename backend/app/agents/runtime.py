@@ -11,7 +11,7 @@ def _build_prompt_for_agent(
 )-> str:
     """
     Build  a simple text prompt for the current agent, using:
-    - agent's system_promptfrom graph_json
+    - agent's system_prompt from graph_json
     - the conversation history so far (user + pervious agents)
     
     for now this is a very simple concatenation. Later, you can can
@@ -50,9 +50,40 @@ def _real_llm_call(
     """
     messages = []
 
-    # System prompt
+    # Formatting instructions to ensure proper markdown output
+    formatting_instructions = """
+IMPORTANT FORMATTING RULES:
+- Use proper markdown formatting with line breaks
+- Each heading (## or **Title**) must be on its own line with a blank line before and after
+- Each numbered list item (1. 2. 3.) must be on its own line
+- Each bullet point (-) must be on its own line
+- Paragraphs must be separated by blank lines
+- After a heading or title, start the content on a new line
+- Example format:
+
+## Heading
+
+First paragraph content here.
+
+Second paragraph content here.
+
+**Key Points:**
+
+1. First point description
+
+2. Second point description
+
+3. Third point description
+
+**Conclusion**
+
+Final paragraph here.
+"""
+
+    # System prompt with formatting instructions
     if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
+        full_system_prompt = f"{system_prompt}\n\n{formatting_instructions}"
+        messages.append({"role": "system", "content": full_system_prompt})
 
     # History: convert DB messages into chat format
     for m in history:
@@ -72,31 +103,6 @@ def _real_llm_call(
     if new_user_content:
         messages.append({"role": "user", "content": new_user_content})
 
-    # Add explicit instruction for researcher to ensure it responds
-    if "researcher" in system_prompt.lower() or "research agent" in system_prompt.lower():
-        messages.append({
-            "role": "user",
-            "content": "Now provide your research findings based on the plan above. Include detailed information, facts, trends, and examples. Make sure to provide substantial content."
-        })
-    
-    # Add explicit instruction for writer to ensure it responds
-    if "writer" in system_prompt.lower() or "writing agent" in system_prompt.lower():
-        current_user_question = None
-        for m in reversed(history):
-            if m.sender == "user":
-                current_user_question = m.content
-                break
-        if current_user_question:
-            messages.append({
-                "role": "user",
-                "content": f"Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response. User question: {current_user_question}"
-            })
-        else:
-            messages.append({
-                "role": "user",
-                "content": "Now write your final, comprehensive answer based on the plan and research above. Make sure to provide a complete response."
-            })
-
     return call_llm(messages)
         
 def run_assistant_graph(
@@ -106,8 +112,8 @@ def run_assistant_graph(
     previous_messages: List[Message] = []
 ) -> list[Message]:
     """
-    Execute the assistant's agent graph (Planner -> Researcher -> Writer)
-    and store all messages in the DB.
+    Execute the assistant's agent graph by processing all agent nodes in sequence.
+    Each agent is called with the full conversation history.
 
     Returns the list of Message objects for this run.
     """
@@ -130,7 +136,7 @@ def run_assistant_graph(
 
     messages_for_this_run.append(user_message)
 
-    # 2) Iterate through nodes in order (Planner -> Researcher -> Writer)
+    # 2) Iterate through agent nodes in order
     agent_nodes = [n for n in nodes if n.get("type") == "agent"]
     
     print(f"[DEBUG] Found {len(agent_nodes)} agent nodes to process")
@@ -145,8 +151,6 @@ def run_assistant_graph(
         # History is all messages so far in this run
         history = messages_for_this_run
 
-        # For simplicity, we don't add extra new_user_content here,
-        # we just let the agent see the full history.
         try:
             print(f"[DEBUG] Calling LLM for {agent_id} with {len(history)} messages in history")
             llm_output = _real_llm_call(
@@ -165,7 +169,7 @@ def run_assistant_graph(
                     retry_output = _real_llm_call(
                         system_prompt=system_prompt,
                         history=history,
-                        new_user_content=f"IMPORTANT: You must provide a detailed {role_name.lower()} response. Do not leave it empty. Provide at least 3-5 sentences with specific information, facts, or analysis.",
+                        new_user_content=f"IMPORTANT: You must provide a detailed response. Do not leave it empty. Provide at least 3-5 sentences with specific information, facts, or analysis.",
                     )
                     if retry_output and retry_output.strip():
                         llm_output = retry_output
