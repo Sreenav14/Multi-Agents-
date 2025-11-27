@@ -1,39 +1,36 @@
 /* src/components/common/Button.module.css */
 
-buttonBase {
-}
-
-/* Base button styles */
+/* Base button styles - matches cream/brown theme */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.12s ease-out, border-color 0.12s ease-out,
-    transform 0.05s ease-out, box-shadow 0.12s ease-out;
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
-  color: #f9fafb;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+  transition: all 0.2s ease;
+  background: #6B5B4F;
+  color: #FAF8F3;
+  box-shadow: 0 2px 8px rgba(107, 91, 79, 0.2);
 }
 
 .button:hover {
-  background: linear-gradient(135deg, #1d4ed8, #4338ca);
+  background: #5A4A3A;
   transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 4px 12px rgba(107, 91, 79, 0.3);
 }
 
 .button:active {
   transform: translateY(0);
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 6px rgba(107, 91, 79, 0.2);
 }
 
 .button:disabled {
-  opacity: 0.6;
-  cursor: default;
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
   box-shadow: none;
 }

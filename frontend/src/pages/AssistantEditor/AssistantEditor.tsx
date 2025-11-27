@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../StudioWorkspace.css"; // reuse existing 3-column layout styles
 
 import type { Assistant, AssistantGraph, AgentNode } from "../../types/api";
-import { fetchAssistant } from "../../api/assistants";
+import { fetchAssistant, updateAssistantGraph } from "../../api/assistants";
 import { getAssistantGraph } from "../../utils/assistantGraph";
 
 const AssistantEditor: React.FC = () => {
@@ -16,6 +16,22 @@ const AssistantEditor: React.FC = () => {
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedGraph, setEditedGraph] = useState<AssistantGraph | null>(null);
+
+  const handleSave = async () => {
+    if (!assistant || !editedGraph) return;
+    try {
+      await updateAssistantGraph(assistant.id, editedGraph);
+      setGraph(editedGraph);
+      setIsEditing(false);
+      alert("Assistant updated successfully");
+    } catch (err: any) {
+      console.error("Failed to save:",err);
+      alert("Failed to save assistant");
+    }
+
+    };
 
   // Load assistant by id
   useEffect(() => {
@@ -57,9 +73,11 @@ const AssistantEditor: React.FC = () => {
   }, [assistantId]);
 
   const selectedAgent: AgentNode | undefined = useMemo(() => {
-    if (!graph || !selectedAgentId) return undefined;
-    return graph.nodes.find((n) => n.id === selectedAgentId);
-  }, [graph, selectedAgentId]);
+    // When editing, use editedGraph; otherwise use graph
+    const sourceGraph = isEditing && editedGraph ? editedGraph : graph;
+    if (!sourceGraph || !selectedAgentId) return undefined;
+    return sourceGraph.nodes.find((n) => n.id === selectedAgentId);
+  }, [graph, editedGraph, selectedAgentId, isEditing]);
 
   // Simple loading / error states
   if (loading && !assistant) {
@@ -101,6 +119,32 @@ const AssistantEditor: React.FC = () => {
             </h1>
           </div>
         </div>
+        <div className="studio-workspace-header-actions">
+    {isEditing && editedGraph && (
+      <button
+        className="studio-workspace-primary-button"
+        onClick={handleSave}
+      >
+        Save Changes
+      </button>
+    )}
+    <button
+      className="studio-workspace-ghost-button"
+      onClick={() => {
+        if (isEditing) {
+          // Cancel editing - reset to original graph
+          setEditedGraph(null);
+          setIsEditing(false);
+        } else {
+          // Start editing - copy current graph
+          setEditedGraph(graph);
+          setIsEditing(true);
+        }
+      }}
+    >
+      {isEditing ? "Cancel" : "Edit"}
+    </button>
+  </div>
       </header>
 
       <div className="studio-workspace-root">
@@ -151,6 +195,49 @@ const AssistantEditor: React.FC = () => {
                 </div>
 
                 <div className="studio-workspace-chat-window">
+  {isEditing ? (
+    // ✅ EDIT MODE: Show editable fields
+    <>
+      <h3 className="studio-workspace-subtitle">System prompt</h3>
+      <textarea
+        value={
+          editedGraph?.nodes.find((n) => n.id === selectedAgentId)?.system_prompt || ""
+        }
+        onChange={(e) => {
+          if (!editedGraph) return;
+          const updated = {
+            ...editedGraph,
+            nodes: editedGraph.nodes.map((n) =>
+              n.id === selectedAgentId
+                ? { ...n, system_prompt: e.target.value }
+                : n
+            ),
+          };
+          setEditedGraph(updated);
+        }}
+        placeholder="Enter system prompt..."
+        rows={6}
+        style={{
+          width: "100%",
+          padding: "12px",
+          borderRadius: "6px",
+          border: "1px solid #E8E0D4",
+          fontFamily: "inherit",
+          fontSize: "0.9rem",
+          resize: "vertical",
+        }}
+      />
+
+                  <h3 className="studio-workspace-subtitle" style={{ marginTop: "24px" }}>
+                    Attached tools (tool_refs)
+                  </h3>
+                  <p className="studio-workspace-text">
+                    To assign tools, use the StudioWorkspace page. Tool editing will be added here soon.
+                  </p>
+                </>
+              ) : (
+                // ✅ VIEW MODE: Show read-only display
+                <>
                   <h3 className="studio-workspace-subtitle">System prompt</h3>
                   <p className="studio-workspace-text">
                     {selectedAgent.system_prompt || "No prompt set yet."}
@@ -161,8 +248,7 @@ const AssistantEditor: React.FC = () => {
                   </h3>
                   {selectedAgent.tool_refs.length === 0 ? (
                     <p className="studio-workspace-text">
-                      No tools attached yet. In the next step, we&apos;ll
-                      let you pick tools from Studio.
+                      No tools attached yet. Use StudioWorkspace to assign tools.
                     </p>
                   ) : (
                     <ul className="studio-workspace-text">
@@ -173,7 +259,9 @@ const AssistantEditor: React.FC = () => {
                       ))}
                     </ul>
                   )}
-                </div>
+                </>
+              )}
+            </div>
               </>
             ) : (
               <p className="studio-workspace-text">

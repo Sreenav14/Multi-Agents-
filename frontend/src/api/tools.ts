@@ -20,6 +20,14 @@ export async function createUserTool(payload: CreateUserToolPayload):
     return response.data
 }
 
+
+export async function deleteUserTool(id: number) {
+    await apiClient.delete(`/tools/${id}`);
+}
+export async function deleteAllUserTools(){
+    await apiClient.delete("/tools");
+}
+
 // MCP Servers
 
 export async function fetchMCPServers() : Promise<MCPServer[]> {
@@ -40,10 +48,4 @@ export async function createMcpserver(payload: CreateMCPServerPayload): Promise<
         payload,
     });
     return response.data;
-}
-export async function deleteUserTool(id: number) {
-    await apiClient.delete(`/tools/${id}`);
-}
-export async function deleteAllUserTools(){
-    await apiClient.delete("/tools");
 }

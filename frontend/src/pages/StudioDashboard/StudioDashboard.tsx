@@ -55,17 +55,26 @@ const StudioDashboard: React.FC = () => {
   const header = (
     <div
       style={{
-        marginBottom: 12,
+        marginBottom: 20,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        padding: "16px 20px",
+        background: "linear-gradient(135deg, #E8DCC8 0%, #F5F1E8 100%)",
+        borderRadius: "12px",
+        border: "1px solid #D4C9B8",
       }}
     >
-      <h1 style={{ fontSize: "1.1rem" }}>Studio</h1>
-      <Button onClick={handleNewAssistantClick}>
-        {showNewForm ? "Close" : "New Assistant"}
-      </Button>
-      <Button onClick={() => navigate("/studio")}>Studio</Button>
+      <div>
+        <p style={{ margin: 0, fontSize: "0.75rem", color: "#8B7A6B", textTransform: "uppercase", letterSpacing: "0.05em" }}>Dashboard</p>
+        <h1 style={{ margin: 0, fontSize: "1.3rem", color: "#2C2416", fontWeight: 600 }}>Your Assistants</h1>
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <Button onClick={handleNewAssistantClick}>
+          {showNewForm ? "Close" : "+ New Assistant"}
+        </Button>
+        <Button onClick={() => navigate("/studio")}>Open Studio</Button>
+      </div>
     </div>
   );
 

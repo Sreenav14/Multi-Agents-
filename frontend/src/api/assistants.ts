@@ -12,6 +12,7 @@ export type CreateAssistantPayload = {
   spec?: string;
 };
 
+
 export async function createAssistant(
   payload: CreateAssistantPayload
 ): Promise<Assistant> {
@@ -19,9 +20,9 @@ export async function createAssistant(
   return res.data;
 }
 
-export async function fetchAssistantById(id:number): Promise<Assistant> {
-    const res = await apiClient.get<Assistant>(`/assistants/${id}`);
-    return res.data;
+export async function fetchAssistantById(id: number): Promise<Assistant> {
+  const res = await apiClient.get<Assistant>(`/assistants/${id}`);
+  return res.data;
 }
 
 export async function deleteAssistant(id: number): Promise<void> {
@@ -38,9 +39,9 @@ export async function updateAssistantGraph(
   return res.data;
 }
 
+// Alias for fetchAssistantById - keeping for backward compatibility
 export async function fetchAssistant(
   assistantId: number
-): Promise<Assistant>{
-  const response = await apiClient.get<Assistant>(`/assistants/${assistantId}`);
-  return response.data;
+): Promise<Assistant> {
+  return fetchAssistantById(assistantId);
 }

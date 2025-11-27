@@ -128,5 +128,94 @@
   white-space: pre-wrap;
 }
 
+/* Tool selection styles */
+.toolsSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #d4c9b8;
+}
+
+.toolsHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toolsLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b5b4f;
+  margin: 0;
+}
+
+.toolsHint {
+  font-size: 0.75rem;
+  color: #8b7a6b;
+  font-style: italic;
+}
+
+.toolsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toolChip {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d4c9b8;
+  background: #faf8f3;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolChip:hover {
+  border-color: #6b5b4f;
+  background: #f0ebe0;
+}
+
+.toolChip[data-selected="true"] {
+  border-color: #6b5b4f;
+  background: #6b5b4f;
+}
+
+.toolChip[data-selected="true"] .toolMain,
+.toolChip[data-selected="true"] .toolSub {
+  color: #faf8f3;
+}
+
+.toolMain {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #2c2416;
+}
+
+.toolSub {
+  font-size: 0.7rem;
+  color: #8b7a6b;
+}
+
+.toolsSummary {
+  margin-top: 8px;
+}
+
+.toolsSummaryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #5a4a3a;
+}
+
+.toolsEmpty {
+  font-size: 0.75rem;
+  color: #8b7a6b;
+  font-style: italic;
+}
+
+
 
 

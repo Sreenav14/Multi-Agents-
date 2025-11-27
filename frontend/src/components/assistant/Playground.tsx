@@ -1,43 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./Playground.module.css";
 import Button from "../common/Button";
 import ChatTranscript from "./chatTranscripts";
 import type { MessageBubbleProps } from "./MessageBubble";
 import { createRun } from "../../api/runs";
-import { apiClient } from "../../api/client";
-import type { Message, Run } from "../../types/api";
+import { fetchChats, fetchChat, deleteChat, type Chat } from "../../api/chats";
+import type { Message } from "../../types/api";
 
 type PlaygroundProps = {
   assistantName: string;
   assistantId: number;
 };
-
-export type Chat = {
-  id: number;
-  assistant_id: number;
-  title: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-export async function fetchChats(assistantId: number): Promise<Chat[]> {
-  const res = await apiClient.get<Chat[]>(`/assistants/${assistantId}/chats`);
-  return res.data;
-}
-
-export async function fetchChat(
-  assistantId: number,
-  chatId: number
-): Promise<{
-  chat: Chat;
-  runs: Run[];
-  messages: Message[];
-}> {
-  const res = await apiClient.get(
-    `/assistants/${assistantId}/chats/${chatId}`
-  );
-  return res.data;
-}
 
 const Playground: React.FC<PlaygroundProps> = ({
   assistantName,
@@ -50,34 +23,32 @@ const Playground: React.FC<PlaygroundProps> = ({
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
 
-  useEffect(() => {
-    loadChats();
-  }, [assistantId]);
-
-  // Filter to show only user and writer messages (WhatsApp-style)
+  // Map backend messages to frontend format - show ALL messages
   const mapBackendMessages = (backendMessages: Message[]): MessageBubbleProps[] => {
-    // Filter: Only show "user" and "writer" messages (hide "planner" and "researcher")
-    const filtered = backendMessages.filter((m) => 
-      m.sender === "user" || m.sender.toLowerCase() === "writer"
-    );
-    
-    return filtered.map((m) => ({
-      sender: m.sender === "user" ? "user" : "assistant", // Show "assistant" instead of "writer"
-      content: m.content,
-      createdAt: new Date(m.created_at).toLocaleTimeString(),
-    }));
+    return backendMessages.map((m) => {
+      const metadata = m.message_metadata as { tools_used?: string[] } | null | undefined;
+      const toolsUsed = metadata?.tools_used || [];
+      
+      return {
+        sender: m.sender === "user" ? "user" : "assistant", // All non-user messages are assistant
+        content: m.content,
+        createdAt: new Date(m.created_at).toLocaleTimeString(),
+        messageId: m.id,
+        toolsUsed: toolsUsed,
+      };
+    });
   };
 
-  const loadChats = async () => {
+  const loadChats = useCallback(async () => {
     try {
       const chatsData = await fetchChats(assistantId);
       setChats(chatsData);
     } catch (err) {
       console.error("Failed to load chats:", err);
     }
-  };
+  }, [assistantId]);
 
-  const loadChatMessages = async (chatId: number) => {
+  const loadChatMessages = useCallback(async (chatId: number) => {
     try {
       const chatData = await fetchChat(assistantId, chatId);
       const mapped = mapBackendMessages(chatData.messages);
@@ -86,7 +57,30 @@ const Playground: React.FC<PlaygroundProps> = ({
     } catch (err) {
       console.error("Failed to load chat:", err);
     }
-  };
+  }, [assistantId]);
+
+  // Load chats when assistant changes
+  useEffect(() => {
+    // Reset state when assistant changes
+    setCurrentChatId(null);
+    setMessages([]);
+    setInput("");
+    loadChats();
+  }, [assistantId, loadChats]);
+
+  // Auto-load most recent chat when chats are loaded (and no chat is currently selected)
+  useEffect(() => {
+    if (chats.length > 0 && currentChatId === null) {
+      // Sort by updated_at descending to get most recent chat
+      const sortedChats = [...chats].sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      const mostRecentChat = sortedChats[0];
+      if (mostRecentChat) {
+        loadChatMessages(mostRecentChat.id);
+      }
+    }
+  }, [chats, currentChatId, loadChatMessages]);
 
   // ✅ FIXED: Proper conversation flow - chat and reply
   const handleRun = async () => {
@@ -117,9 +111,12 @@ const Playground: React.FC<PlaygroundProps> = ({
       }
 
       // ✅ FIXED: Backend returns ALL messages (previous conversation + new)
-      // Just replace all messages with the complete filtered conversation
+      // Just replace all messages with the complete conversation
       const allMapped = mapBackendMessages(res.messages);
       setMessages(allMapped); // Replace with complete conversation
+      
+      // Reload chat list to update timestamps
+      await loadChats();
       
     } catch (err: any) {
       const errorMessage =
@@ -170,18 +167,61 @@ const Playground: React.FC<PlaygroundProps> = ({
             className={
               currentChatId === chat.id ? styles.activeChat : styles.chatItem
             }
-            onClick={() => loadChatMessages(chat.id)}
           >
-            <div className={styles.chatTitle}>
-              {chat.title || "New Chat"}
+            <div
+              className={styles.chatTitle}
+              onClick={() => loadChatMessages(chat.id)}
+            >
+              {chat.title || `Chat ${chat.id}`}
             </div>
+            <button
+              className={styles.deleteChatButton}
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (
+                  window.confirm(
+                    "Delete this chat? All messages will be permanently deleted."
+                  )
+                ) {
+                  try {
+                    await deleteChat(assistantId, chat.id);
+                    await loadChats(); // Reload chat list
+                    if (currentChatId === chat.id) {
+                      // If deleted chat was active, clear it
+                      setCurrentChatId(null);
+                      setMessages([]);
+                    }
+                  } catch (err) {
+                    console.error("Failed to delete chat:", err);
+                    alert("Failed to delete chat");
+                  }
+                }
+              }}
+              title="Delete chat"
+            >
+              ×
+            </button>
           </div>
         ))}
       </div>
   
       {/* ✅ FIXED: Transcript comes first (grows to fill space) */}
       <div className={styles.transcriptSection}>
-        <ChatTranscript messages={messages} />
+        <ChatTranscript 
+          messages={messages} 
+          onDeleteMessage={async (messageId: number) => {
+            try {
+              // TODO: Add API endpoint to delete message
+              console.log("Delete message:", messageId);
+              // For now, just reload the chat to refresh
+              if (currentChatId) {
+                await loadChatMessages(currentChatId);
+              }
+            } catch (err) {
+              console.error("Failed to delete message:", err);
+            }
+          }}
+        />
       </div>
   
       {/* ✅ FIXED: Input bar at the bottom (fixed position) */}
@@ -205,8 +245,12 @@ const Playground: React.FC<PlaygroundProps> = ({
           <div
             style={{
               fontSize: "0.78rem",
-              color: "#f97373",
+              color: "#dc2626",
               marginTop: 4,
+              padding: "8px 12px",
+              background: "#fee",
+              borderRadius: "6px",
+              border: "1px solid #fcc",
             }}
           >
             {error}

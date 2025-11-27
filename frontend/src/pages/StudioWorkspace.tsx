@@ -1,28 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import "./StudioWorkspace.css";
 
+import "./StudioWorkspace.css";
 import AddToolsModal from "../components/studio/AddToolsModal";
 import ToolsPanel from "../components/studio/ToolsPanel";
 import PromptsSection from "../components/studio/PromptsSection";
 import FlowSection from "../components/studio/FlowSection";
-
-import {
-  fetchUserTools,
-  fetchMCPServers,
-} from "../api/tools";
-
+import {fetchUserTools,fetchMCPServers, deleteUserTool} from "../api/tools";
 import { createAssistant, updateAssistantGraph } from "../api/assistants";
 import { createRun } from "../api/runs";
 
-import type {
-  UserToolConnection,
-  MCPServer,
-  Message,
-  AgentNode,
-} from "../types/api";
+import type {UserToolConnection,MCPServer,Message,AgentNode,} from "../types/api";
+
+// Fix broken markdown patterns from LLM output
+const preprocessMarkdown = (text: string): string => {
+  return text
+    // Fix broken bold: "**\n\nText\n\n**" → "**Text**"
+    .replace(/\*\*\s*\n+\s*/g, '**')
+    .replace(/\s*\n+\s*\*\*/g, '**')
+    // Fix "**\n\n**" patterns (empty bold)
+    .replace(/\*\*\s*\*\*/g, '')
+    // Fix isolated "**" on lines
+    .replace(/^\s*\*\*\s*$/gm, '')
+    // Fix "*\n\n" patterns (broken bullets)
+    .replace(/^\*\s*$/gm, '')
+    // Fix numbered lists with broken formatting: "2.\n\n" → proper list
+    .replace(/^(\d+)\.\s*\n+/gm, '$1. ')
+    // Fix merged words: add space between lowercase and uppercase (camelCase breaks)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    // Fix merged words after punctuation without space
+    .replace(/([.,:;!?])([A-Z])/g, '$1 $2')
+    // Clean up excessive newlines
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove leading/trailing whitespace from lines
+    .split('\n').map(line => line.trim()).join('\n')
+    .trim();
+};
+
+type ToolOption = {
+  id:number;
+  kind: "user_tool" | "mcp_server";
+  label: string;
+  subtitle?: string;
+};
 
 const StudioWorkspace: React.FC = () => {
   const navigate = useNavigate();
@@ -42,6 +64,33 @@ const StudioWorkspace: React.FC = () => {
   const [inputText, setInputText] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [runError, setRunError] = useState<string | null>(null);
+  const [tempAssistantId, setTempAssistantId] = useState<number | null>(null); // For testing only
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [assistantName, setAssistantName] = useState("");
+  const [assistantDescription, setAssistantDescription] = useState("");
+  const chatWindowRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const toolOptions: ToolOption[] = [...userTools.map((tool) => ({
+    id: tool.id,
+    kind: "user_tool" as const,
+    label : tool.template_key,
+    subtitle : tool.status,
+  })),
+  ...mcpServers.map((server)=>({
+    id:server.id,
+    kind: "mcp_server" as const,
+    label: server.name,
+    subtitle: server.server_type
+  }))
+
+]
 
   const loadTools = async () => {
     try {
@@ -66,20 +115,33 @@ const StudioWorkspace: React.FC = () => {
       setLoadingTools(false);
     }
   };
+  const handleDeleteTool = async (toolId: number) => {
+    try {
+      await deleteUserTool(toolId);
+      setUserTools((prev) => prev.filter((t)=> t.id !== toolId));
+    }
+    catch (error: any){
+      console.error("Failed to delete tool:", error);
+    }
+  };
 
   useEffect(() => {
     loadTools();
   }, []);
 
   const buildGraphJson = () => {
-    // Build graph_json from prompts and flowOrder
-    const nodes = prompts.map((prompt) => ({
-      id: prompt.id,
-      type: "agent",
-      role: prompt.role || prompt.label,
-      system_prompt: prompt.system_prompt,
-      tool_refs: prompt.tool_refs || [],
-    }));
+    // Build graph_json from prompts - ONLY include agents that are in the flowOrder
+    // and order them according to flowOrder
+    const nodes = flowOrder
+      .map((agentId) => prompts.find((p) => p.id === agentId))
+      .filter((prompt): prompt is AgentNode => prompt !== undefined)
+      .map((prompt) => ({
+        id: prompt.id,
+        type: "agent",
+        role: prompt.role || prompt.label,
+        system_prompt: prompt.system_prompt,
+        tool_refs: prompt.tool_refs || [],
+      }));
 
     // Build edges from flowOrder
     const edges = [];
@@ -116,24 +178,32 @@ const StudioWorkspace: React.FC = () => {
       // Build graph_json from prompts and flowOrder
       const graphJson = buildGraphJson();
 
-      // Create a temporary assistant
-      const assistant = await createAssistant({
-        name: `Temp Assistant - ${new Date().toISOString()}`,
-        description: "Temporary assistant for testing workflow",
-      });
+      let assistantId = tempAssistantId;
 
-      // Update the assistant with the graph
-      await updateAssistantGraph(assistant.id, graphJson);
+      // Create a TEMPORARY assistant for testing (will be deleted or reused)
+      if (!assistantId) {
+        const assistant = await createAssistant({
+          name: `_temp_test_${Date.now()}`,
+          description: "Temporary assistant for Studio testing",
+        });
+        assistantId = assistant.id;
+        setTempAssistantId(assistantId);
+      }
+
+      // Always update the assistant with the latest graph
+      await updateAssistantGraph(assistantId, graphJson);
 
       // Run the workflow
-      const result = await createRun(assistant.id, inputText);
+      const result = await createRun(assistantId, inputText);
 
-      // Set messages from the result
-      setMessages(result.messages);
+      // APPEND new messages to existing ones (filter out duplicates by id)
+      setMessages((prev) => {
+        const existingIds = new Set(prev.map((m) => m.id));
+        const newMessages = result.messages.filter((m) => !existingIds.has(m.id));
+        return [...prev, ...newMessages];
+      });
+      
       setInputText(""); // Clear input after successful run
-
-      // Optionally delete the temporary assistant after a delay
-      // (or keep it for reference)
     } catch (err: any) {
       console.error("Failed to run workflow:", err);
       const errorMessage =
@@ -144,6 +214,52 @@ const StudioWorkspace: React.FC = () => {
       setRunError(errorMessage);
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const handleDeploy = async () => {
+    if (!assistantName.trim()) {
+      setRunError("Please enter a name for your assistant in the left panel.");
+      return;
+    }
+
+    if (prompts.length === 0) {
+      setRunError("Please add at least one agent before deploying.");
+      return;
+    }
+
+    if (flowOrder.length === 0) {
+      setRunError("Please define the flow order before deploying.");
+      return;
+    }
+
+    try {
+      setIsDeploying(true);
+      setRunError(null);
+
+      const graphJson = buildGraphJson();
+
+      // Create the REAL assistant with user's chosen name
+      const assistant = await createAssistant({
+        name: assistantName.trim(),
+        description: assistantDescription.trim() || "Multi-agent assistant deployed from Studio",
+      });
+
+      // Update with the graph
+      await updateAssistantGraph(assistant.id, graphJson);
+
+      // Navigate to the assistant in dashboard
+      navigate(`/assistants/${assistant.id}`);
+    } catch (err: any) {
+      console.error("Failed to deploy:", err);
+      const errorMessage =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to deploy assistant";
+      setRunError(errorMessage);
+    } finally {
+      setIsDeploying(false);
     }
   };
 
@@ -177,10 +293,17 @@ const StudioWorkspace: React.FC = () => {
               {isDashboardCollapsed ? "Show Overview" : "Hide Overview"}
             </button>
             <button
-              className="studio-workspace-primary-button"
+              className="studio-workspace-secondary-button"
               onClick={() => setShowAddToolsModal(true)}
             >
               + Add Tools
+            </button>
+            <button
+              className="studio-workspace-deploy-button"
+              onClick={handleDeploy}
+              disabled={isDeploying || prompts.length === 0 || !assistantName.trim()}
+            >
+              {isDeploying ? "Deploying..." : "🚀 Deploy"}
             </button>
           </div>
         </header>
@@ -192,8 +315,37 @@ const StudioWorkspace: React.FC = () => {
               isDashboardCollapsed ? "collapsed" : ""
             }`}
           >
+            {/* Assistant Name Section */}
+            <div className="studio-workspace-section studio-workspace-name-section">
+              <h2 className="studio-workspace-title">Assistant Details</h2>
+              <div className="studio-workspace-name-field">
+                <label className="studio-workspace-field-label">Name *</label>
+                <input
+                  type="text"
+                  className="studio-workspace-name-input"
+                  placeholder="e.g., Research Assistant"
+                  value={assistantName}
+                  onChange={(e) => setAssistantName(e.target.value)}
+                />
+              </div>
+              <div className="studio-workspace-name-field">
+                <label className="studio-workspace-field-label">Description</label>
+                <input
+                  type="text"
+                  className="studio-workspace-name-input"
+                  placeholder="What does this assistant do?"
+                  value={assistantDescription}
+                  onChange={(e) => setAssistantDescription(e.target.value)}
+                />
+              </div>
+              {!assistantName.trim() && (
+                <p className="studio-workspace-hint">Enter a name to enable Deploy</p>
+              )}
+            </div>
+
             <ToolsPanel
               onAddTools={() => setShowAddToolsModal(true)}
+              onDeleteTool={handleDeleteTool}
               tools={userTools}
               mcpServers={mcpServers}
               loading={loadingTools}
@@ -203,11 +355,23 @@ const StudioWorkspace: React.FC = () => {
             <PromptsSection
               prompts={prompts}
               onPromptsChange={(newPrompts) => {
+                // Detect if a new agent was added
+                const newAgentIds = newPrompts
+                  .map((p) => p.id)
+                  .filter((id) => !prompts.some((p) => p.id === id));
+                
                 setPrompts(newPrompts);
-                setFlowOrder((prev) =>
-                  prev.filter((id) => newPrompts.some((p) => p.id === id))
-                );
+                
+                setFlowOrder((prev) => {
+                  // Remove deleted agents from flow
+                  const filtered = prev.filter((id) => 
+                    newPrompts.some((p) => p.id === id)
+                  );
+                  // Auto-add new agents to end of flow
+                  return [...filtered, ...newAgentIds];
+                });
               }}
+              toolOptions = {toolOptions}
             />
 
             <FlowSection
@@ -227,10 +391,24 @@ const StudioWorkspace: React.FC = () => {
                     Compose & orchestrate workflows
                   </h2>
                 </div>
-                <span className="studio-workspace-chip">MCP Preview</span>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  {messages.length > 0 && (
+                    <button
+                      className="studio-workspace-ghost-button"
+                      onClick={() => {
+                        setMessages([]);
+                        setTempAssistantId(null);
+                      }}
+                      style={{ fontSize: "12px", padding: "6px 12px" }}
+                    >
+                      Clear Chat
+                    </button>
+                  )}
+                  <span className="studio-workspace-chip">MCP Preview</span>
+                </div>
               </div>
 
-              <div className="studio-workspace-chat-window">
+              <div className="studio-workspace-chat-window" ref={chatWindowRef}>
                 {runError && (
                   <div
                     style={{
@@ -252,19 +430,29 @@ const StudioWorkspace: React.FC = () => {
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {(() => {
-                      // ✅ last agent is the last non-user sender in history
-                      const lastAgentMessage = [...messages].reverse().find(
-                        (m) => m.sender !== "user"
-                      );
-                      const lastAgentId = lastAgentMessage?.sender;
+                      // Group messages: show user messages + only the LAST agent response per conversation turn
+                      const displayMessages: Message[] = [];
+                      let lastAgentMsg: Message | null = null;
 
-                      const visible = lastAgentId
-                        ? messages.filter(
-                            (m) => m.sender === "user" || m.sender === lastAgentId
-                          )
-                        : messages;
+                      messages.forEach((msg, idx) => {
+                        if (msg.sender === "user") {
+                          // Before adding new user message, add the last agent response
+                          if (lastAgentMsg) {
+                            displayMessages.push(lastAgentMsg);
+                            lastAgentMsg = null;
+                          }
+                          displayMessages.push(msg);
+                        } else {
+                          // Keep track of the latest agent message
+                          lastAgentMsg = msg;
+                        }
+                        // If this is the last message and it's an agent, add it
+                        if (idx === messages.length - 1 && lastAgentMsg) {
+                          displayMessages.push(lastAgentMsg);
+                        }
+                      });
 
-                      return visible.map((msg) => (
+                      return displayMessages.map((msg) => (
                         <div
                           key={msg.id}
                           style={{
@@ -284,7 +472,7 @@ const StudioWorkspace: React.FC = () => {
                               marginBottom: "4px",
                             }}
                           >
-                            {msg.sender === "user" ? "user" : msg.sender}
+                            {msg.sender === "user" ? "You" : "Assistant"}
                           </div>
                           <div style={{ fontSize: "0.85rem", color: "#2C2416" }}>
                             {msg.sender === "user" ? (
@@ -301,9 +489,9 @@ const StudioWorkspace: React.FC = () => {
                                   li: ({children, ...props}: any) => <li style={{marginBottom: '0.3em', lineHeight: '1.5'}} {...props}>{children}</li>,
                                   p: ({children, ...props}: any) => <p style={{marginBottom: '0.6em', lineHeight: '1.6'}} {...props}>{children}</p>,
                                   strong: ({children, ...props}: any) => <strong style={{fontWeight: 'bold'}} {...props}>{children}</strong>,
-                                  blockquote: ({children, ...props}: any) => <blockquote style={{borderLeft: '3px solid #ccc', paddingLeft: '0.8em', marginLeft: '0', marginTop: '0.5em', marginBottom: '0.5em', fontStyle: 'italic'}} {...props}>{children}</blockquote>,
+                                  blockquote: ({children, ...props}: any) => <blockquote style={{borderLeft: '3px solid #D4C9B8', paddingLeft: '0.8em', marginLeft: '0', marginTop: '0.5em', marginBottom: '0.5em', fontStyle: 'italic', color: '#5A4A3A'}} {...props}>{children}</blockquote>,
                                 }}
-                              >{msg.content}</ReactMarkdown>
+                              >{preprocessMarkdown(msg.content)}</ReactMarkdown>
                             )}
                           </div>
                         </div>

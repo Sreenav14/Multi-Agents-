@@ -1,14 +1,20 @@
-root {
-}
+/* AssistantCard styles - cream theme */
 
 .cardWrapper {
   position: relative;
 }
 
 .spec {
-  font-size: 0.78rem;
-  color: #9ca3af;
-  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #6B5B4F;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: rgba(107, 91, 79, 0.08);
+  border-radius: 6px;
+}
+
+.spec strong {
+  color: #5A4A3A;
 }
 
 .meta {
@@ -16,33 +22,33 @@ root {
   font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
-  color: #6b7280;
+  color: #8B7A6B;
 }
 
 .deleteButton {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  top: 10px;
+  right: 10px;
+  background: #FAF8F3;
+  border: 1px solid #D4C9B8;
+  color: #8B7A6B;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
   transition: all 0.2s ease;
   z-index: 10;
 }
 
 .deleteButton:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #ef4444;
+  background: #FEE2E2;
+  border-color: #FECACA;
+  color: #DC2626;
 }
 
 .deleteButton:active {

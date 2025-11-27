@@ -90,6 +90,7 @@ class RunCreate(RunBase):
 class RunRead(BaseModel):
     id:int
     assistant_id:int
+    chat_id: Optional[int] = None
     status:str
     input_text:str
     created_at:datetime

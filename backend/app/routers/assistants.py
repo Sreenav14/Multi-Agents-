@@ -128,25 +128,14 @@ def delete_assistant(
 ):
     """
     DELETE /assistants/{assistant_id}
-    Deletes the assistant with the given id and all associated runs and messages.
+    Deletes the assistant with the given id.
+    Cascade delete handles all related runs, chats, and messages automatically.
     """
     assistant = db.query(Assistant).filter(Assistant.id == assistant_id).first()
     if not assistant:
         raise HTTPException(status_code=404, detail="Assistant not found")
     
-    # Delete the assistant (cascade should handle runs and messages if configured)
-    # If not, we'll delete them manually
-    
-    # Delete all messages for runs of this assistant
-    runs = db.query(Run).filter(Run.assistant_id == assistant_id).all()
-    for run in runs:
-        db.query(Message).filter(Message.run_id == run.id).delete()
-    
-    # Delete all runs for this assistant
-    db.query(Run).filter(Run.assistant_id == assistant_id).delete()
-    db.query(Chat).filter(Chat.assistant_id == assistant_id).delete()
-    
-    # Delete the assistant
+    # Cascade delete handles runs, chats, and messages automatically
     db.delete(assistant)
     db.commit()
     

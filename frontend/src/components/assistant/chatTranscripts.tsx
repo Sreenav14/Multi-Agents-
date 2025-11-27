@@ -5,9 +5,10 @@ import type { MessageBubbleProps } from "./MessageBubble";
 
 export type ChatTranscriptProps = {
   messages: MessageBubbleProps[];
+  onDeleteMessage?: (messageId: number) => void;
 };
 
-const ChatTranscript: React.FC<ChatTranscriptProps> = ({ messages }) => {
+const ChatTranscript: React.FC<ChatTranscriptProps> = ({ messages, onDeleteMessage }) => {
   const hasMessages = messages.length > 0;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,6 +59,9 @@ const ChatTranscript: React.FC<ChatTranscriptProps> = ({ messages }) => {
               sender={m.sender}
               content={m.content}
               createdAt={m.createdAt}
+              messageId={m.messageId}
+              toolsUsed={m.toolsUsed}
+              onDelete={onDeleteMessage}
             />
           ))}
           {/* Invisible div at the bottom to scroll to */}

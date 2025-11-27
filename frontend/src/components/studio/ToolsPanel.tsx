@@ -5,13 +5,14 @@ import type {UserToolConnection, MCPServer} from "../../types/api";
 
 type ToolsPanelprops = {
     onAddTools: () => void;
+    onDeleteTool?: (toolId: number) => void;
     tools: UserToolConnection[];
     mcpServers: MCPServer[];
     loading: boolean;
     error: string | null;
  };
 
-const ToolsPanel: React.FC<ToolsPanelprops> = ({onAddTools, tools, mcpServers, loading, error }) => {
+const ToolsPanel: React.FC<ToolsPanelprops> = ({onAddTools, onDeleteTool, tools, mcpServers, loading, error }) => {
     return (
         <div className="tools-panel">
         <div className="tools-panel-header-row">
@@ -48,9 +49,20 @@ const ToolsPanel: React.FC<ToolsPanelprops> = ({onAddTools, tools, mcpServers, l
                                                     {tool.template_key}
                                                 </span>
                                             </div>
-                                            <span className = "tools-panel-item-status">
-                                                {tool.status}
-                                            </span>
+                                            <div className="tools-panel-item-actions">
+                                                <span className = "tools-panel-item-status">
+                                                    {tool.status}
+                                                </span>
+                                                {onDeleteTool && (
+                                                    <button
+                                                        className="tools-panel-delete-btn"
+                                                        onClick={() => onDeleteTool(tool.id)}
+                                                        title="Delete tool"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>

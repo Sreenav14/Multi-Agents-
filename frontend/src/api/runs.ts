@@ -3,9 +3,15 @@ import { apiClient } from "./client";
 import type { Run, Message } from "../types/api";
 
 export type CreateRunResponse = {
-  run: Run;
+  id: number;
+  assistant_id: number;
+  chat_id: number | null;
+  status: string;
+  input_text: string;
+  created_at: string;
+  completed_at: string | null;
+  error_message: string | null;
   messages: Message[];
-  chat_id: number;
 };
 
 // If your backend returns bare Run object with embedded messages,

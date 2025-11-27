@@ -9,17 +9,18 @@ from app.db.base import Base
 class Assistant(Base):
     __tablename__ = "assistants"
     
-    id = Column(Integer, primary_key =True, index = True)
-    name = Column(String(255), nullable = False)
-    description = Column(Text, nullable = True)
-    spec = Column(Text, nullable = True)
-    graph_json = Column(JSONB, nullable = False)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    spec = Column(Text, nullable=True)
+    graph_json = Column(JSONB, nullable=False)
     
-    created_at = Column(DateTime, default = datetime.utcnow, nullable = False)
-    updated_at = Column(DateTime, default = datetime.utcnow,onupdate = datetime.utcnow, nullable = False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
-    runs = relationship("Run", back_populates = "assistant")
-    chats = relationship("Chat", back_populates = "assistant")
+    # Cascade delete: when assistant is deleted, delete all related runs and chats
+    runs = relationship("Run", back_populates="assistant", cascade="all, delete-orphan")
+    chats = relationship("Chat", back_populates="assistant", cascade="all, delete-orphan")
 
 class Chat(Base):
     __tablename__ = "chats"
@@ -31,7 +32,7 @@ class Chat(Base):
     updated_at = Column(DateTime, default = datetime.utcnow, onupdate = datetime.utcnow, nullable = False)
     
     assistant = relationship("Assistant", back_populates = "chats")
-    runs = relationship("Run", back_populates = "chat")
+    runs = relationship("Run", back_populates = "chat",cascade = "all, delete-orphan")
     
 
 
@@ -50,7 +51,7 @@ class Run(Base):
     error_message = Column(Text, nullable = True)
     
     assistant = relationship("Assistant", back_populates = "runs")
-    messages = relationship("Message", back_populates = "run")
+    messages = relationship("Message", back_populates = "run",cascade = "all, delete-orphan")
     chat = relationship("Chat", back_populates = "runs")
     
 class Message(Base):

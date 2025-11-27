@@ -71,7 +71,6 @@ def delete_user_tool(tool_id: int, db:Session = Depends(get_db)):
         )
     db.delete(tool)
     db.commit()
-    db.refresh(tool)
     return tool
 
 @router.delete("/",status_code=status.HTTP_204_NO_CONTENT)

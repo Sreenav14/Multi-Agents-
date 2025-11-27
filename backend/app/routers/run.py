@@ -2,18 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from app.db.session import get_db
 from app.db.models import Assistant, Run, Message, Chat
-from app.schemas import RunCreate
+from app.schemas.schemas import RunCreate, RunWithMessages
 from app.agents.runtime import run_assistant_graph
 from app.schemas import RunRead, MessageRead
+from app.services.tool_resolver import resolve_tools_for_assistant
 
 
 router = APIRouter(prefix="/assistants", tags=["runs"])
 
 
-@router.post("/{assistant_id}/runs")
+@router.post("/{assistant_id}/runs",response_model=RunWithMessages)
 def create_run_for_assistant(
     assistant_id: int,
     payload: RunCreate,
@@ -56,8 +57,10 @@ def create_run_for_assistant(
     db.commit()
     db.refresh(run)
     
+    tools_by_agent = resolve_tools_for_assistant(db=db, assistant=assistant)
+    
     try:
-        messages = run_assistant_graph(db=db, assistant=assistant, run=run,previous_messages=previous_messages)
+        messages = run_assistant_graph(db=db, assistant=assistant, run=run,previous_messages=previous_messages,tools_by_agent=tools_by_agent)
     except Exception as e:
         run.status = "failed"
         error_msg = str(e)
@@ -82,15 +85,20 @@ def create_run_for_assistant(
 
     # Make sure run is refreshed (status 'completed')
     db.refresh(run)
-    run_read = RunRead.model_validate(run)
     message_reads = [MessageRead.model_validate(m) for m in messages]
     
-    return{
-        "run": run_read.model_dump(),
-        "messages": [m.model_dump() for m in message_reads],
-        "chat_id": chat.id,
-        
-    }
+    # Return flat structure matching RunWithMessages schema
+    return RunWithMessages(
+        id=run.id,
+        assistant_id=run.assistant_id,
+        chat_id=run.chat_id,
+        status=run.status,
+        input_text=run.input_text,
+        created_at=run.created_at,
+        completed_at=run.completed_at,
+        error_message=run.error_message,
+        messages=message_reads,
+    )
             
 
 

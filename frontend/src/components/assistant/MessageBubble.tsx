@@ -7,12 +7,18 @@ export type MessageBubbleProps = {
   sender: string;
   content: string;
   createdAt?: string;
+  messageId?: number;
+  toolsUsed?: string[];
+  onDelete?: (messageId: number) => void;
 };
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
   sender,
   content,
   createdAt,
+  messageId,
+  toolsUsed = [],
+  onDelete,
 }) => {
   const isUser = sender === "user";
 
@@ -23,91 +29,51 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const label = isUser ? "You" : "Assistant";
 
-  // Preprocess content to ensure proper markdown formatting
-  // Convert text to proper markdown structure with line breaks
+  // Fix broken markdown patterns from LLM output
   const preprocessMarkdown = (text: string): string => {
-    let processed = text;
-    
-    // Step 1: Split by numbered list items first (most important)
-    const numberedPattern = /\d+\.\s+\*\*[^*]+\*\*\s*:/g;
-    const numberedMatches = Array.from(text.matchAll(numberedPattern));
-    
-    if (numberedMatches.length > 0) {
-      // Split the text by numbered items
-      const segments: string[] = [];
-      let lastPos = 0;
-      
-      numberedMatches.forEach((match, idx) => {
-        const start = match.index!;
-        const nextStart = numberedMatches[idx + 1]?.index ?? text.length;
-        
-        // Get content before this numbered item
-        if (start > lastPos) {
-          segments.push(text.substring(lastPos, start));
-        }
-        
-        // Get this numbered item and its content
-        segments.push(text.substring(start, nextStart));
-        lastPos = nextStart;
-      });
-      
-      // Process each segment
-      processed = segments.map((segment) => {
-        const isNumbered = /^\d+\.\s+\*\*/.test(segment.trim());
-        const trimmed = segment.trim();
-        
-        if (!trimmed) return '';
-        
-        // For numbered items, ensure they start on new line
-        if (isNumbered) {
-          // Add line break before the number
-          let formatted = trimmed.replace(/^(\d+\.\s+\*\*[^*]+\*\*\s*:)/, '\n\n$1');
-          // Ensure content after colon starts on new line
-          formatted = formatted.replace(/(\*\*[^*]+\*\*\s*:)\s+/, '$1\n\n');
-          return formatted;
-        }
-        
-        // For regular content, split into paragraphs
-        // Split on sentence endings followed by capital letters (paragraph breaks)
-        let formatted = trimmed
-          .replace(/([.!?])\s+([A-Z][^.!?]*?)(?=\s+[A-Z][^.!?]*?[.!?]|$)/g, '$1\n\n$2')
-          .trim();
-        
-        // Ensure headings are on their own lines
-        formatted = formatted.replace(/(\*\*[^*]+\*\*)/g, '\n\n$1\n\n');
-        
-        return formatted;
-      }).filter(s => s.trim()).join('\n\n').trim();
-    }
-    
-    // Step 2: General paragraph splitting (for non-numbered content)
-    // Split paragraphs based on sentence endings and structure
-    processed = processed
-      // Split on sentence endings that are followed by capital letters (likely new paragraph)
-      // This pattern: ". A" or "? The" indicates a new sentence that might be a new paragraph
-      .replace(/([.!?])\s+([A-Z][a-z]+(?:\s+[a-z]+){0,3}(?:\s+[A-Z][a-z]+))/g, '$1\n\n$2')
-      // More aggressive: split after periods followed by space and capital letter
-      .replace(/([.!?])\s+([A-Z])/g, '$1\n\n$2')
-      // Ensure bold headings are on separate lines with spacing
-      .replace(/([^\n])(\*\*[^*]+\*\*)/g, '$1\n\n$2')
-      .replace(/(\*\*[^*]+\*\*)([^\n])/g, '$1\n\n$2')
-      // Ensure numbered items are on separate lines
-      .replace(/([^\n])(\d+\.\s+\*\*)/g, '$1\n\n$2')
-      // Ensure colons after bold text have proper spacing
-      .replace(/(\*\*[^*]+\*\*\s*:)\s+([A-Z])/g, '$1\n\n$2')
-      // Clean up excessive newlines (more than 2 consecutive)
+    return text
+      // Fix broken bold: "**\n\nText\n\n**" → "**Text**"
+      .replace(/\*\*\s*\n+\s*/g, '**')
+      .replace(/\s*\n+\s*\*\*/g, '**')
+      // Fix "**\n\n**" patterns (empty bold)
+      .replace(/\*\*\s*\*\*/g, '')
+      // Fix isolated "**" on lines
+      .replace(/^\s*\*\*\s*$/gm, '')
+      // Fix "*\n\n" patterns (broken bullets)
+      .replace(/^\*\s*$/gm, '')
+      // Fix numbered lists with broken formatting: "2.\n\n" → proper list
+      .replace(/^(\d+)\.\s*\n+/gm, '$1. ')
+      // Fix merged words: add space between lowercase and uppercase (camelCase breaks)
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      // Fix merged words after punctuation without space
+      .replace(/([.,:;!?])([A-Z])/g, '$1 $2')
+      // Clean up excessive newlines
       .replace(/\n{3,}/g, '\n\n')
+      // Remove leading/trailing whitespace from lines
+      .split('\n').map(line => line.trim()).join('\n')
       .trim();
-    
-    return processed;
   };
 
   return (
     <div className={`${styles.row} ${rowClass}`}>
-      <div>
+      <div style={{ position: "relative", width: "100%" }}>
         <div className={styles.meta}>
           <span className={styles.sender}>{label}</span>
           {createdAt ? ` • ${createdAt}` : null}
+          {toolsUsed.length > 0 && (
+            <span className={styles.toolsBadge}>
+              🔧 {toolsUsed.join(", ")}
+            </span>
+          )}
+          {!isUser && messageId && onDelete && (
+            <button
+              className={styles.deleteMessageButton}
+              onClick={() => onDelete(messageId)}
+              title="Delete message"
+            >
+              ×
+            </button>
+          )}
         </div>
         <div className={bubbleClass}>
           {isUser ? (
@@ -180,13 +146,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                   ),
                   blockquote: ({children, node, ...props}: any) => (
                     <blockquote style={{
-                      borderLeft: '3px solid rgba(148, 163, 184, 0.6)',
+                      borderLeft: '3px solid #D4C9B8',
                       paddingLeft: '1em',
                       marginLeft: '0',
                       marginTop: '0.8em',
                       marginBottom: '0.8em',
                       fontStyle: 'italic',
-                      opacity: '0.9'
+                      color: '#5A4A3A'
                     }} {...props}>{children}</blockquote>
                   ),
                 }}

@@ -1,10 +1,10 @@
 .container {
   flex: 1;
   border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.5);
+  border: 1px solid #E8E0D4;
   padding: 10px 12px;
   box-sizing: border-box;
-  background: radial-gradient(circle at top left, #020617, #020617);
+  background: #F5F1E8;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: #8B7A6B;
   text-align: center;
   padding: 8px;
 }

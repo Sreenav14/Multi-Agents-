@@ -31,18 +31,22 @@ root {
 }
 
 .bubbleAgent {
-  background: #020617;
-  color: #e5e7eb;
+  background: #EDE7DB;
+  color: #2C2416;
   border-bottom-left-radius: 4px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
+  border: 1px solid #D4C9B8;
   overflow-wrap: break-word;
   white-space: normal;
 }
 
 .meta {
   font-size: 0.7rem;
-  color: #9ca3af;
+  color: #8B7A6B;
   margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .sender {
@@ -74,4 +78,33 @@ root {
 .bubbleAgent :global(li) {
   display: list-item;
   margin-bottom: 0.4em;
+}
+
+.toolsBadge {
+  font-size: 0.65rem;
+  background: #E8DCC8;
+  color: #6B5B4F;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #D4C9B8;
+  font-weight: 500;
+}
+
+.deleteMessageButton {
+  background: transparent;
+  border: none;
+  color: #8B7A6B;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.deleteMessageButton:hover {
+  opacity: 1;
+  background-color: #fee;
+  color: #dc2626;
 }
