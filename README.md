@@ -1,6 +1,6 @@
 # Multi-Agent Studio MVP
 
-A **Rowboat-style** multi-agent orchestration platform with LLM-driven tool calling. Build, test, and deploy AI assistants with multiple agents that can use external tools dynamically.
+A multi-agent orchestration platform with LLM-driven tool calling. Build, test, and deploy AI assistants with multiple agents that can use external tools dynamically.
 
 ## 🏗️ Architecture Overview
 
