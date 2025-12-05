@@ -1,0 +1,32 @@
+.container {
+  flex: 1;
+  border-radius: 12px;
+  border: 1px solid #E8E0D4;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  background: #F5F1E8;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* ✅ Ensure container can scroll */
+  max-height: 100%;
+  min-height: 0;
+}
+
+.empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #8B7A6B;
+  text-align: center;
+  padding: 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  /* ✅ Add gap between messages for better readability */
+  gap: 12px;
+}

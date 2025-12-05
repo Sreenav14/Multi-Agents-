@@ -1,0 +1,53 @@
+/* AgentNode - cream theme */
+
+.node {
+  border-radius: 10px;
+  border: 1px solid #D4C9B8;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #FAF8F3 0%, #F5F1E8 100%);
+  transition: all 0.2s ease;
+}
+
+.node:hover {
+  border-color: #8B7A6B;
+  box-shadow: 0 2px 8px rgba(107, 91, 79, 0.1);
+}
+
+.roleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.role {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2C2416;
+}
+
+.id {
+  font-size: 0.7rem;
+  color: #8B7A6B;
+  background: #EDE7DB;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.promptLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B5B4F;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.prompt {
+  font-size: 0.82rem;
+  color: #5A4A3A;
+  line-height: 1.5;
+  max-height: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

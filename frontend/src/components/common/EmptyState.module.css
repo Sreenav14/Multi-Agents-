@@ -1,0 +1,26 @@
+
+root {
+}
+
+.wrapper {
+  border-radius: 16px;
+  border: 1px dashed #D4C9B8;
+  background: #F5F1E8;
+  padding: 32px 24px;
+  text-align: center;
+  color: #2C2416;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #2C2416;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #5A4A3A;
+  max-width: 420px;
+  margin: 0 auto 16px auto;
+}

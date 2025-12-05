@@ -1,0 +1,20 @@
+import axios from "axios";
+
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+export const apiClient = axios.create({
+  baseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Optional: simple response interceptor (not required, but nice)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // You can log or transform error here later
+    return Promise.reject(error);
+  }
+);

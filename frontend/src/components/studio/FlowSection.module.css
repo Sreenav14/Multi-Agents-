@@ -1,0 +1,125 @@
+.section {
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: #f5f1e8;
+  border: 1px solid #e8e0d4;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b5b4f;
+}
+
+.text {
+  font-size: 13px;
+  color: #5a4a3a;
+  margin: 0 0 10px 0;
+}
+
+.flowList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #8b7a6b;
+  margin: 0;
+}
+
+.flowItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e8e0d4;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #e8dcc8;
+}
+
+.stepCircle {
+  min-width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6b5b4f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #faf8f3;
+}
+
+.flowLabel {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c2416;
+}
+
+.flowActions {
+  display: flex;
+  gap: 4px;
+}
+
+.smallButton {
+  border-radius: 999px;
+  border: 1px solid #d4c9b8;
+  background: transparent;
+  color: #5a4a3a;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.deleteButton {
+  composes: smallButton;
+  color: #dc2626;
+}
+
+.arrow {
+  text-align: center;
+  padding: 2px 0;
+  font-size: 1.1rem;
+  color: #c4b5a0;
+}
+
+.addBlock {
+  margin-top: 6px;
+}
+
+.addLabel {
+  font-size: 0.8rem;
+  margin: 0 0 4px 0;
+  color: #6b5b4f;
+}
+
+.addButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ghostButton {
+  border-radius: 999px;
+  background: transparent;
+  color: #6b5b4f;
+  border: 1px solid #d4c9b8;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+
+
+
+
+
+

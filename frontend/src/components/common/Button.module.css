@@ -1,0 +1,36 @@
+/* src/components/common/Button.module.css */
+
+/* Base button styles - matches cream/brown theme */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #6B5B4F;
+  color: #FAF8F3;
+  box-shadow: 0 2px 8px rgba(107, 91, 79, 0.2);
+}
+
+.button:hover {
+  background: #5A4A3A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(107, 91, 79, 0.3);
+}
+
+.button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(107, 91, 79, 0.2);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

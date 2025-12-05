@@ -1,0 +1,41 @@
+/* AgentList - cream theme */
+
+.wrapper {
+  margin-top: 12px;
+  padding: 16px;
+  background: #F5F1E8;
+  border-radius: 12px;
+  border: 1px solid #E8E0D4;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #E8E0D4;
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2C2416;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: #8B7A6B;
+  background: #EDE7DB;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.nodes {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

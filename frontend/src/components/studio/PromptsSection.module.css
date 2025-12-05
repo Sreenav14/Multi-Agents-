@@ -1,0 +1,221 @@
+.section {
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: #f5f1e8;
+  border: 1px solid #e8e0d4;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b5b4f;
+  margin: 0;
+}
+
+.ghostButton {
+  border-radius: 999px;
+  background: transparent;
+  color: #6b5b4f;
+  border: 1px solid #d4c9b8;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.text {
+  font-size: 13px;
+  color: #5a4a3a;
+  margin: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card {
+  border: 1px solid #e8e0d4;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f5f1e8;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.agentName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c2416;
+  margin: 0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 6px;
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input,
+.textarea {
+  background: #faf8f3;
+  border: 1px solid #d4c9b8;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #2c2416;
+  font-size: 0.85rem;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.primaryButton {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background: #6b5b4f;
+  color: #faf8f3;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  border-radius: 999px;
+  border: 1px solid #d4c9b8;
+  background: transparent;
+  color: #5a4a3a;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.deleteButton {
+  composes: secondaryButton;
+  color: #dc2626;
+}
+
+.promptText {
+  font-size: 0.8rem;
+  color: #5a4a3a;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Tool selection styles */
+.toolsSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #d4c9b8;
+}
+
+.toolsHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toolsLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b5b4f;
+  margin: 0;
+}
+
+.toolsHint {
+  font-size: 0.75rem;
+  color: #8b7a6b;
+  font-style: italic;
+}
+
+.toolsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toolChip {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d4c9b8;
+  background: #faf8f3;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toolChip:hover {
+  border-color: #6b5b4f;
+  background: #f0ebe0;
+}
+
+.toolChip[data-selected="true"] {
+  border-color: #6b5b4f;
+  background: #6b5b4f;
+}
+
+.toolChip[data-selected="true"] .toolMain,
+.toolChip[data-selected="true"] .toolSub {
+  color: #faf8f3;
+}
+
+.toolMain {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #2c2416;
+}
+
+.toolSub {
+  font-size: 0.7rem;
+  color: #8b7a6b;
+}
+
+.toolsSummary {
+  margin-top: 8px;
+}
+
+.toolsSummaryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #5a4a3a;
+}
+
+.toolsEmpty {
+  font-size: 0.75rem;
+  color: #8b7a6b;
+  font-style: italic;
+}
+
+
+
+
