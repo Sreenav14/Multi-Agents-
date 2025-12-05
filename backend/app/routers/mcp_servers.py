@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-<<<<<<< HEAD
 from typing import List, Dict, Any
 
 from sqlalchemy.orm import Session
@@ -8,14 +7,6 @@ from app.services.mcp_tools import refresh_mcp_server_tools
 from app.db.models import MCPServer, MCPTool
 from app import schemas
 from app.db import models
-from app.services.mcp_tools import refresh_mcp_server_tools
-=======
-from sqlalchemy.orm import Session
-
-from app.db.session import get_db
-from app import schemas
-from app.db import models
->>>>>>> origin/main
 from app.schemas.tools import (
     MCPServerCreate,MCPServerRead
 )
@@ -56,67 +47,7 @@ def create_mcp_server(payload:MCPServerCreate, db:Session=Depends(get_db)):
     db.commit()
     db.refresh(server)
     return server
-<<<<<<< HEAD
     
-    
-@router.get("",response_model=List[Dict[str,Any]])
-def list_mcp_servers(db:Session=Depends(get_db)):
-    servers = db.query(MCPServer).all()
-    return [
-        {
-            "id":s.id,
-            "name":s.name,
-            "description":s.description,
-            "server_type":s.server_type,
-            "endpoint":s.endpoint,
-            "config_json":s.config_json,
-        }
-        for s in servers
-    ]
-    
-    
-# Create a new MCP server
-@router.post("",response_model=Dict[str,Any])
-def create_mcp_server(payload:Dict[str,Any], db:Session=Depends(get_db)):
-    """ 
-    Create a new MCP server configuration.
-    
-    Expected payload:
-    {
-      "name":"filesystem mcp",
-      "description":"Local file tools",
-      "server_type":"http",
-      "endpoint":"https://localhost:9000",
-      "config_json":{...optional config...}
-      }
-    """
-    name = payload.get("name")
-    endpoint = payload.get("endpoint")
-    server_type = payload.get("server_type","http")
-    config_json = payload.get("config_json")or{}
-    
-    if not name or not endpoint:
-        raise HTTPException(status_code=400, detail="name and endpoint are required")
-    
-    
-    server = MCPServer(
-        name=name,
-        description=payload.get("description"),
-        server_type=server_type,
-        endpoint=endpoint,
-        config_json=config_json,
-    )
-    db.add(server)
-    db.commit()
-    db.refresh(server)
-    
-    return {
-        "id":server.id,
-        "name":server.name,
-        "description":server.description,
-        "server_type":server.server_type,
-        "config_json":server.config_json,
-    }
     
 @router.post("/{server_id}/refresh_tools", response_model=List[Dict[str,Any]] )
 def refresh_server_tools(
@@ -182,6 +113,3 @@ def delete_mcp_server(server_id: int, db: Session = Depends(get_db)):
     db.delete(server)
     db.commit()
     return None
-=======
-    
->>>>>>> origin/main

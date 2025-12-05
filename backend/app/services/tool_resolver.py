@@ -70,7 +70,6 @@ def resolve_tools_for_assistant(
                 if not ms:
                     continue
                 resolved_list.append({
-<<<<<<< HEAD
                     "kind":"user_tool",
                     "id":ms.id,
                     "template_key":"mcp",
@@ -78,13 +77,6 @@ def resolve_tools_for_assistant(
                         "endpoint":ms.endpoint,
                         "config_json":ms.config_json or {},
                     },
-=======
-                    "kind":"mcp_server",
-                    "id":ms.id,
-                    "name":ms.name,
-                    "server_type":ms.server_type,
-                    "config":ms.config_json or {},
->>>>>>> origin/main
                 })
                 
             else:

@@ -143,12 +143,14 @@ frontend/
 │   │   │   ├── AssistantHeader.jsx
 │   │   │   ├── chatTranscripts.jsx
 │   │   │   ├── MessageBubble.jsx  # Chat message with markdown
-│   │   │   └── Playground.jsx     # Chat interface
+│   │   │   ├── Playground.jsx     # Chat interface
+│   │   │   └── *.module.css       # Component-scoped styles
 │   │   │
 │   │   ├── common/                # Reusable components
 │   │   │   ├── Button.jsx
 │   │   │   ├── Card.jsx
-│   │   │   └── EmptyState.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   └── *.module.css       # Component-scoped styles
 │   │   │
 │   │   └── studio/                # Studio workspace components
 │   │       ├── AddToolsModal.jsx  # Tool connection modal
@@ -157,7 +159,8 @@ frontend/
 │   │       ├── FlowSection.jsx    # Agent flow order
 │   │       ├── NewAssistantForm.jsx
 │   │       ├── PromptsSection.jsx # Agent prompts editor
-│   │       └── ToolsPanel.jsx     # Connected tools display
+│   │       ├── ToolsPanel.jsx     # Connected tools display
+│   │       └── *.module.css       # Component-scoped styles
 │   │
 │   ├── hooks/                     # Custom React hooks
 │   │   ├── useAssistant.js
@@ -165,11 +168,14 @@ frontend/
 │   │   └── useTools.js
 │   │
 │   ├── layout/                    # App layout components
-│   │   └── AppShell.jsx
+│   │   ├── AppShell.jsx
+│   │   └── AppShell.module.css
 │   │
 │   ├── pages/                     # Route pages
 │   │   ├── HomePage.jsx
+│   │   ├── HomePage.module.css
 │   │   ├── StudioWorkspace.jsx    # Build assistants
+│   │   ├── StudioWorkspace.css
 │   │   ├── StudioDashboard/       # List assistants
 │   │   ├── Assistantdetails/      # Chat with assistant
 │   │   └── AssistantEditor/       # Edit assistant
@@ -541,9 +547,10 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 ### Frontend
 - **React 19** - UI framework
 - **JavaScript** - Plain JS (no TypeScript)
-- **Vite** - Build tool
-- **Tailwind CSS** - Utility-first styling
-- **React Router** - Navigation
+- **Vite 7** - Build tool
+- **Tailwind CSS 4** - Utility-first styling
+- **CSS Modules** - Scoped component styles
+- **React Router 7** - Navigation
 - **Axios** - HTTP client
 - **react-markdown** - Markdown rendering
 

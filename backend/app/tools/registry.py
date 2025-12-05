@@ -16,10 +16,7 @@ from collections import defaultdict
 from app.tools.gmail_helpers import gmail_list_recent, gmail_search, gmail_create_draft, gmail_top_emails
 from app.tools.definitions import ToolDefinition, TOOL_REGISTRY, register_tool
 from app.services.google_oauth import build_gmail_client_from_tokens, refresh_gmail_tokens
-<<<<<<< HEAD
 from app.mcp.client import call_mcp_tool, MCPClientError
-=======
->>>>>>> origin/main
 
 # TAVILY WEB SEARCH
 
@@ -352,7 +349,6 @@ gmail_tool = ToolDefinition(
     },
     handler = gmail_tool_handler,
 )
-<<<<<<< HEAD
 register_tool(gmail_tool)
 
 # MCP TOOL Handler
@@ -446,7 +442,3 @@ mcp_tool = ToolDefinition(
     handler = mcp_tool_handler,
 )
 TOOL_REGISTRY.register(mcp_tool)
-            
-=======
-register_tool(gmail_tool)
->>>>>>> origin/main

@@ -7,10 +7,7 @@ from app.db import models
 from app.routers import assistants, run, chats, tools, mcp_servers
 from app.routers import google_oauth
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/main
 app = FastAPI(title= "multi-agent")
 
 app.add_middleware(
@@ -28,10 +25,6 @@ app.include_router(mcp_servers.router)
 app.include_router(google_oauth.router)
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)

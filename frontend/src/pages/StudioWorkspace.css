@@ -1,20 +1,13 @@
 .studio-workspace-shell {
-<<<<<<< HEAD
   height: 100vh;
   max-height: 100vh;
   width: 100%;
   max-width: 100vw;
-=======
-  min-height: 100vh;
->>>>>>> origin/main
   background-color: #FAF8F3;
   color: #2C2416;
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   overflow: hidden;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-header {
@@ -157,11 +150,8 @@
   min-height: 0;
   height: calc(100vh - 80px); /* Subtract header height */
   overflow: hidden;
-<<<<<<< HEAD
   width: 100%;
   max-width: 100%;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-column {
@@ -169,26 +159,20 @@
   box-sizing: border-box;
   background-color: #FAF8F3;
   overflow-y: auto;
-<<<<<<< HEAD
   overflow-x: hidden;
   min-width: 0;
   height: 100%;
   max-height: 100%;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-center {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-<<<<<<< HEAD
   min-width: 0;
   max-width: 100%;
   height: 100%;
   max-height: 100%;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-left {
@@ -229,7 +213,6 @@
   background: #F5F1E8;
   border: 1px solid #E8E0D4;
   box-shadow: 0 1px 3px rgba(44, 36, 22, 0.05);
-<<<<<<< HEAD
   box-sizing: border-box;
 }
 
@@ -237,8 +220,6 @@
   margin-bottom: 0;
   height: 100%;
   max-height: 100%;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-title {
@@ -294,10 +275,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-<<<<<<< HEAD
   max-height: 100%;
-=======
->>>>>>> origin/main
   overflow: hidden;
 }
 
@@ -306,10 +284,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-<<<<<<< HEAD
   flex-shrink: 0;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-chip {
@@ -331,12 +306,9 @@
   margin-bottom: 16px;
   background: #F5F1E8;
   overflow-y: auto;
-<<<<<<< HEAD
   overflow-x: hidden;
   width: 100%;
   box-sizing: border-box;
-=======
->>>>>>> origin/main
 }
 
 /* Custom scrollbar for chat window */
@@ -361,10 +333,7 @@
 .studio-workspace-chat-input-row {
   display: flex;
   gap: 10px;
-<<<<<<< HEAD
   flex-shrink: 0;
-=======
->>>>>>> origin/main
 }
 
 .studio-workspace-chat-input {
