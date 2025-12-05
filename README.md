@@ -2,7 +2,6 @@
 
 A **Rowboat-style** multi-agent orchestration platform with LLM-driven tool calling. Build, test, and deploy AI assistants with multiple agents that can use external tools dynamically.
 
-<<<<<<< HEAD
 ## ✨ Key Features
 
 - **Multi-Agent Workflows** - Create sequential agent pipelines where each agent can see outputs from previous agents
@@ -15,17 +14,11 @@ A **Rowboat-style** multi-agent orchestration platform with LLM-driven tool call
 
 ---
 
-=======
->>>>>>> origin/main
 ## 🏗️ Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-<<<<<<< HEAD
 │                              FRONTEND (React + JavaScript)                   │
-=======
-│                              FRONTEND (React + TypeScript)                   │
->>>>>>> origin/main
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
 │  │   HomePage   │  │   Studio     │  │  Dashboard   │  │  Assistant   │     │
 │  │              │  │  Workspace   │  │              │  │    Page      │     │
@@ -41,16 +34,11 @@ A **Rowboat-style** multi-agent orchestration platform with LLM-driven tool call
 │  ┌─────────────────────────────────┴─────────────────────────────────────┐   │
 │  │                           API Routers                                  │   │
 │  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐          │   │
-<<<<<<< HEAD
 │  │  │ assistants │ │    runs    │ │   tools    │ │ mcp_servers│          │   │
 │  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘          │   │
 │  │  ┌────────────┐ ┌────────────┐                                        │   │
 │  │  │   chats    │ │google_oauth│                                        │   │
 │  │  └────────────┘ └────────────┘                                        │   │
-=======
-│  │  │ assistants │ │    runs    │ │   chats    │ │   tools    │          │   │
-│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘          │   │
->>>>>>> origin/main
 │  └───────────────────────────────────────────────────────────────────────┘   │
 │                                     │                                         │
 │  ┌──────────────────────────────────┴────────────────────────────────────┐   │
@@ -75,11 +63,7 @@ A **Rowboat-style** multi-agent orchestration platform with LLM-driven tool call
 
 ---
 
-<<<<<<< HEAD
 ## 📁 Project Structure
-=======
-## 📁 Complete File Structure
->>>>>>> origin/main
 
 ### Backend (`/backend`)
 
@@ -95,11 +79,7 @@ backend/
 │   │
 │   ├── core/
 │   │   ├── __init__.py
-<<<<<<< HEAD
 │   │   └── config.py              # Settings: DATABASE_URL, GROQ_API_KEY, Google OAuth
-=======
-│   │   └── config.py              # Settings: DATABASE_URL, GROQ_API_KEY, LLM_MODEL
->>>>>>> origin/main
 │   │
 │   ├── db/
 │   │   ├── __init__.py
@@ -110,7 +90,6 @@ backend/
 │   ├── llm/
 │   │   └── client.py              # Groq API wrapper with tool calling support
 │   │
-<<<<<<< HEAD
 │   ├── mcp/
 │   │   ├── __init__.py
 │   │   └── client.py              # MCP HTTP client for custom tool servers
@@ -122,14 +101,6 @@ backend/
 │   │   ├── mcp_servers.py         # MCP server configuration & management
 │   │   ├── run.py                 # Execute assistant runs
 │   │   └── tools.py               # User tool connections (Tavily, Gmail, etc.)
-=======
-│   ├── routers/
-│   │   ├── assistants.py          # CRUD for assistants
-│   │   ├── chats.py               # Chat history management
-│   │   ├── mcp_servers.py         # MCP server configuration
-│   │   ├── run.py                 # Execute assistant runs
-│   │   └── tools.py               # User tool connections
->>>>>>> origin/main
 │   │
 │   ├── schemas/
 │   │   ├── __init__.py
@@ -137,25 +108,16 @@ backend/
 │   │   └── tools.py               # Tool-related schemas
 │   │
 │   ├── services/
-<<<<<<< HEAD
 │   │   ├── google_oauth.py        # Google OAuth token management
 │   │   ├── mcp_tools.py           # MCP tool refresh service
-=======
->>>>>>> origin/main
 │   │   └── tool_resolver.py       # Resolves tool configs per agent
 │   │
 │   └── tools/
 │       ├── definitions.py         # ToolDefinition class & TOOL_REGISTRY
-<<<<<<< HEAD
 │       ├── gmail_helpers.py       # Gmail API helper functions
 │       └── registry.py            # Tavily, Weather, Gmail, MCP implementations
 │
 └── .env                           # Environment variables
-=======
-│       └── registry.py            # Tavily, Weather tool implementations
-│
-└── migrate_add_chat_id.py         # Database migration script
->>>>>>> origin/main
 ```
 
 ### Frontend (`/frontend`)
@@ -163,7 +125,6 @@ backend/
 ```
 frontend/
 ├── src/
-<<<<<<< HEAD
 │   ├── main.jsx                   # React entry point
 │   ├── app.jsx                    # Router configuration
 │   ├── style.css                  # Global styles + Tailwind
@@ -194,6 +155,7 @@ frontend/
 │   │       ├── AssistantCard.jsx
 │   │       ├── AssistantGrid.jsx
 │   │       ├── FlowSection.jsx    # Agent flow order
+│   │       ├── NewAssistantForm.jsx
 │   │       ├── PromptsSection.jsx # Agent prompts editor
 │   │       └── ToolsPanel.jsx     # Connected tools display
 │   │
@@ -208,62 +170,11 @@ frontend/
 │   ├── pages/                     # Route pages
 │   │   ├── HomePage.jsx
 │   │   ├── StudioWorkspace.jsx    # Build assistants
-=======
-│   ├── main.tsx                   # React entry point
-│   ├── App.tsx                    # Router configuration
-│   ├── style.css                  # Global styles
-│   │
-│   ├── api/                       # API client functions
-│   │   ├── client.ts              # Axios instance
-│   │   ├── assistants.ts          # Assistant CRUD
-│   │   ├── chats.ts               # Chat management
-│   │   ├── runs.ts                # Run execution
-│   │   └── tools.ts               # Tool connections
-│   │
-│   ├── components/
-│   │   ├── assistant/             # Assistant page components
-│   │   │   ├── AgentList.tsx      # List of agents in graph
-│   │   │   ├── AgentNode.tsx      # Single agent display
-│   │   │   ├── AssistantHeader.tsx
-│   │   │   ├── chatTranscripts.tsx
-│   │   │   ├── MessageBubble.tsx  # Chat message with markdown
-│   │   │   └── Playground.tsx     # Chat interface
-│   │   │
-│   │   ├── common/                # Reusable components
-│   │   │   ├── Button.tsx
-│   │   │   ├── Card.tsx
-│   │   │   ├── EmptyState.tsx
-│   │   │   └── Spinner.tsx
-│   │   │
-│   │   └── studio/                # Studio workspace components
-│   │       ├── AddToolsModal.tsx
-│   │       ├── AssistantCard.tsx
-│   │       ├── AssistantGrid.tsx
-│   │       ├── FlowSection.tsx    # Agent flow order
-│   │       ├── NewAssistantForm.tsx
-│   │       ├── PromptsSection.tsx # Agent prompts editor
-│   │       └── ToolsPanel.tsx
-│   │
-│   ├── hooks/                     # Custom React hooks
-│   │   ├── useAssistant.ts
-│   │   ├── useAssistants.ts
-│   │   └── useTools.ts
-│   │
-│   ├── layout/                    # App layout components
-│   │   ├── AppShell.tsx
-│   │   ├── Sidebar.tsx
-│   │   └── Topbar.tsx
-│   │
-│   ├── pages/                     # Route pages
-│   │   ├── HomePage.tsx
-│   │   ├── StudioWorkspace.tsx    # Build assistants
->>>>>>> origin/main
 │   │   ├── StudioDashboard/       # List assistants
 │   │   ├── Assistantdetails/      # Chat with assistant
 │   │   └── AssistantEditor/       # Edit assistant
 │   │
 │   ├── tools/                     # Frontend tool templates
-<<<<<<< HEAD
 │   │   ├── index.js
 │   │   └── tavily.js
 │   │
@@ -278,20 +189,6 @@ frontend/
 ├── vite.config.js
 ├── tailwind.config.js
 └── postcss.config.js
-=======
-│   │   ├── index.ts
-│   │   └── tavily.ts
-│   │
-│   ├── types/
-│   │   └── api.ts                 # TypeScript interfaces
-│   │
-│   └── utils/
-│       └── assistantGraph.ts      # Graph parsing utilities
-│
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
->>>>>>> origin/main
 ```
 
 ---
@@ -440,7 +337,6 @@ User Input → Frontend → POST /assistants/{id}/runs → Backend
 
 ## 🛠️ Tool System
 
-<<<<<<< HEAD
 ### Available Tools
 
 | Tool | Description | Config Required |
@@ -450,8 +346,6 @@ User Input → Frontend → POST /assistants/{id}/runs → Backend
 | **Gmail** | Read emails, search, create drafts | Google OAuth |
 | **MCP** | Proxy for custom MCP server tools | `endpoint`, `config_json` |
 
-=======
->>>>>>> origin/main
 ### How Tools Work
 
 1. **Tool Definition**: Each tool has a JSON schema (for LLM) and a handler function
@@ -499,31 +393,6 @@ register_tool(ToolDefinition(
 ))
 ```
 
-<<<<<<< HEAD
-=======
-### Tool JSON Schema Format
-
-```json
-{
-  "type": "function",
-  "function": {
-    "name": "tavily",
-    "description": "Search the web for current information",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "query": {
-          "type": "string",
-          "description": "The search query"
-        }
-      },
-      "required": ["query"]
-    }
-  }
-}
-```
-
->>>>>>> origin/main
 ---
 
 ## 🎨 UI Theme
@@ -563,13 +432,7 @@ source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 # Install dependencies
 pip install -r requirements.txt
 
-<<<<<<< HEAD
 # Create .env file (see Environment Variables section)
-=======
-# Create .env file
-echo "DATABASE_URL=postgresql+psycopg2://user:pass@localhost:5432/agent" > .env
-echo "GROQ_API_KEY=your-groq-api-key" >> .env
->>>>>>> origin/main
 
 # Run server
 uvicorn app.main:app --reload --port 8000
@@ -583,17 +446,12 @@ cd frontend
 # Install dependencies
 npm install
 
-<<<<<<< HEAD
 # Run development server (default port 5173)
-=======
-# Run development server
->>>>>>> origin/main
 npm run dev
 ```
 
 ### Environment Variables
 
-<<<<<<< HEAD
 Create a `.env` file in the `backend/` directory:
 
 ```env
@@ -612,20 +470,14 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 ```
 
-=======
->>>>>>> origin/main
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `GROQ_API_KEY` | Groq API key for LLM | Yes |
-<<<<<<< HEAD
 | `FRONTEND_URL` | Frontend URL for CORS/redirects | Yes |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID | For Gmail |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | For Gmail |
 | `GOOGLE_REDIRECT_URI` | Google OAuth redirect URI | For Gmail |
-=======
-| `FRONTEND_URL` | Frontend URL (for CORS) | No |
->>>>>>> origin/main
 
 ---
 
@@ -658,7 +510,6 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 | GET | `/tools` | List connected tools |
 | POST | `/tools` | Connect a new tool |
 | DELETE | `/tools/{id}` | Disconnect tool |
-<<<<<<< HEAD
 | POST | `/tools/gmail/connect` | Start Gmail OAuth flow |
 
 ### MCP Servers
@@ -674,8 +525,6 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 |--------|----------|-------------|
 | GET | `/oauth/google/login` | Start Google OAuth flow |
 | GET | `/oauth/google/callback` | Google OAuth callback |
-=======
->>>>>>> origin/main
 
 ---
 
@@ -683,7 +532,6 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 
 ### Backend
 - **FastAPI** - Modern Python web framework
-<<<<<<< HEAD
 - **SQLAlchemy** - ORM with PostgreSQL/JSONB support
 - **PostgreSQL** - Primary database with JSONB for configs
 - **Groq** - LLM provider (Llama 3.1 8B Instant)
@@ -692,20 +540,9 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 
 ### Frontend
 - **React 19** - UI framework
-- **JavaScript** - No TypeScript
+- **JavaScript** - Plain JS (no TypeScript)
 - **Vite** - Build tool
 - **Tailwind CSS** - Utility-first styling
-=======
-- **SQLAlchemy** - ORM with connection pooling
-- **PostgreSQL** - Primary database
-- **Groq** - LLM provider (Llama 3.1)
-- **Pydantic** - Data validation
-
-### Frontend
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
->>>>>>> origin/main
 - **React Router** - Navigation
 - **Axios** - HTTP client
 - **react-markdown** - Markdown rendering
@@ -713,11 +550,8 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 ### External APIs
 - **Tavily** - Web search
 - **OpenWeatherMap** - Weather data
-<<<<<<< HEAD
 - **Google Gmail API** - Email access
 - **MCP Protocol** - Custom tool servers
-=======
->>>>>>> origin/main
 
 ---
 
@@ -726,18 +560,13 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 ### Database Optimizations
 - Connection pooling (5 connections, 10 overflow)
 - Cascade deletes on relationships
-<<<<<<< HEAD
 - JSONB columns for flexible configs
-=======
-- Eager loading with `joinedload`
->>>>>>> origin/main
 - SQL logging disabled in production
 
 ### Tool Calling Best Practices
 - Max 10 tool iterations per agent
 - Duplicate call detection to prevent infinite loops
 - Automatic final response forcing
-<<<<<<< HEAD
 - Config injection for security (API keys never in prompts)
 
 ### Gmail Integration
@@ -773,9 +602,6 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/oauth/google/callback
 - Verify the endpoint URL is accessible
 - Check that the MCP server is running
 - Ensure `/tools` and `/call` endpoints are implemented
-=======
-- Config injection for security
->>>>>>> origin/main
 
 ---
 
